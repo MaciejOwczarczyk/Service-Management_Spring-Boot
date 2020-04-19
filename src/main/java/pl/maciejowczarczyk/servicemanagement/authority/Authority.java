@@ -23,7 +23,6 @@ public class Authority {
     @JoinColumn(name = "authority", referencedColumnName = "role")
     private Role role;
 
-
     @ManyToOne
     @JoinColumn(name = "username", referencedColumnName = "username")
     private User user;

@@ -39,4 +39,12 @@ public class UserServiceImpl implements UserService {
         user.setRoles(new HashSet<Role>(Collections.singletonList(userRole)));
         userRepository.save(user);
     }
+
+    @Override
+    public void activateUser(User user) {
+        if (!user.isEnabled()) {
+            user.setEnabled(true);
+            userRepository.save(user);
+        }
+    }
 }

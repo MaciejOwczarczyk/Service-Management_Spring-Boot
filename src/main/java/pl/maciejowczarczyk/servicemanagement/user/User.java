@@ -6,6 +6,7 @@ import lombok.Setter;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -20,10 +21,15 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+    @NotBlank
     private String firstName;
+    @NotBlank
     private String lastName;
+    @NotBlank
+    @Column(nullable = false, unique = true)
     private String username;
+    @NotBlank
+    @Column(nullable = false)
     private String password;
     private boolean enabled;
 
@@ -32,12 +38,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-
     public String getFullName() {
         return firstName + " " + lastName;
     }
-
-
-
 
 }
