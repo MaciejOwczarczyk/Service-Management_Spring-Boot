@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.pl.NIP;
 import pl.maciejowczarczyk.servicemanagement.machine.Machine;
+import pl.maciejowczarczyk.servicemanagement.province.Province;
 import pl.maciejowczarczyk.servicemanagement.salesman.Salesman;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;

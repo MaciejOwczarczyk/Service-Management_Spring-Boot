@@ -7,7 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.files.DBFileRepository;
+import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.time.LocalDate;

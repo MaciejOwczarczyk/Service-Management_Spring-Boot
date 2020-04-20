@@ -11,7 +11,6 @@ import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 import java.io.IOException;
 import java.util.List;
 
-@RequiredArgsConstructor
 @Service
 public class DBFileStorageService {
 

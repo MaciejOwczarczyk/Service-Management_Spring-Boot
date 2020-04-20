@@ -2,8 +2,8 @@ package pl.maciejowczarczyk.servicemanagement.files;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.user.User;
-import serviceTicket.ServiceTicket;
 
 import java.util.List;
 

@@ -34,6 +34,9 @@ public class DBFile {
     @ManyToOne
     private User user;
 
+    public DBFile() {
+    }
+
     public DBFile(String fileName, String fileType, byte[] data, ServiceTicket serviceTicket, User user) {
         this.fileName = fileName;
         this.fileType = fileType;

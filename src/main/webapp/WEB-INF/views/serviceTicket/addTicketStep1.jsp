@@ -17,7 +17,7 @@
     <title>Service Planner</title>
 
     <!-- Custom fonts for this template -->
-    <link href='<c:url value="../../../resources/Front/vendor/fontawesome-free/css/all.min.css"/>' rel="stylesheet"
+    <link href='<c:url value="../../../resources//Front/vendor/fontawesome-free/css/all.min.css"/>' rel="stylesheet"
           type="text/css">
 
     <link href="<c:url value="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"/>"
@@ -322,7 +322,7 @@
             <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                <a class="btn btn-primary" href="../login.html">Logout</a>
+                <a class="btn btn-primary" href="/logout">Logout</a>
             </div>
         </div>
     </div>

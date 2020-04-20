@@ -1,4 +1,8 @@
 package pl.maciejowczarczyk.servicemanagement.producer;
 
-public interface ProducerController {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProducerRepository extends JpaRepository<Producer, Long> {
+
+    Producer findAllById(Long id);
 }

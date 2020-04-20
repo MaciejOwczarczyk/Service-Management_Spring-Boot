@@ -9,6 +9,18 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import pl.maciejowczarczyk.servicemanagement.machine.Machine;
+import pl.maciejowczarczyk.servicemanagement.machine.MachineRepository;
+import pl.maciejowczarczyk.servicemanagement.machineType.MachineType;
+import pl.maciejowczarczyk.servicemanagement.machineType.MachineTypeRepository;
+import pl.maciejowczarczyk.servicemanagement.producer.Producer;
+import pl.maciejowczarczyk.servicemanagement.producer.ProducerRepository;
+import pl.maciejowczarczyk.servicemanagement.province.Province;
+import pl.maciejowczarczyk.servicemanagement.province.ProvinceRepository;
+import pl.maciejowczarczyk.servicemanagement.salesman.Salesman;
+import pl.maciejowczarczyk.servicemanagement.salesman.SalesmanRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
 
 import javax.validation.Valid;
 import java.util.List;

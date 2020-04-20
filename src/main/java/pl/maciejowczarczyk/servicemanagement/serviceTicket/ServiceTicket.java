@@ -8,19 +8,23 @@ import pl.maciejowczarczyk.servicemanagement.company.Company;
 import pl.maciejowczarczyk.servicemanagement.files.DBFile;
 import pl.maciejowczarczyk.servicemanagement.machine.Machine;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
+import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatus;
+import pl.maciejowczarczyk.servicemanagement.ticketType.TicketType;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "service_tickets")
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class ServiceTicket {
+public class ServiceTicket implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

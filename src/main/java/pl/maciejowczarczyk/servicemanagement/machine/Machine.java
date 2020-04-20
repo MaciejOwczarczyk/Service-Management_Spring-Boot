@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import pl.maciejowczarczyk.servicemanagement.company.Company;
 import pl.maciejowczarczyk.servicemanagement.machineType.MachineType;
+import pl.maciejowczarczyk.servicemanagement.producer.Producer;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

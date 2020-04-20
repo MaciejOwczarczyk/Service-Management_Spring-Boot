@@ -29,6 +29,10 @@ import pl.maciejowczarczyk.servicemanagement.machine.Machine;
 import pl.maciejowczarczyk.servicemanagement.machine.MachineRepository;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
+import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatus;
+import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatusRepository;
+import pl.maciejowczarczyk.servicemanagement.ticketType.TicketType;
+import pl.maciejowczarczyk.servicemanagement.ticketType.TicketTypeRepository;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
@@ -333,7 +337,7 @@ public class ServiceTicketController {
     @GetMapping("/deleteFile/{id}")
     public String deletePhoto(@PathVariable String id) {
         List<DBFile> dbFiles = Collections.singletonList(dbFileStorageService.getFile(id));
-        ServiceTicket serviceTicket = serviceTicketRepository.findAllByDbFileList(dbFiles);
+        ServiceTicket serviceTicket = serviceTicketRepository.findByDbFileListIn(dbFiles);
         dbFileStorageService.deleteFile(id);
         return "redirect:../details/" + serviceTicket.getId();
     }

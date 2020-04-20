@@ -3,6 +3,7 @@ package pl.maciejowczarczyk.servicemanagement.user;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 
 import javax.persistence.*;
@@ -16,7 +17,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class User {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +38,9 @@ public class User {
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
+
+    @OneToMany(mappedBy = "user")
+    private List<Planner> planners;
 
     public String getFullName() {
         return firstName + " " + lastName;

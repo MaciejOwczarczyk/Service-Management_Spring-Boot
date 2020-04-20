@@ -9,6 +9,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.company.Company;
 import pl.maciejowczarczyk.servicemanagement.company.CompanyRepository;
+import pl.maciejowczarczyk.servicemanagement.machineType.MachineType;
+import pl.maciejowczarczyk.servicemanagement.machineType.MachineTypeRepository;
+import pl.maciejowczarczyk.servicemanagement.producer.Producer;
+import pl.maciejowczarczyk.servicemanagement.producer.ProducerRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
 
 import javax.validation.Valid;
 import java.util.List;

@@ -3,6 +3,8 @@ package pl.maciejowczarczyk.servicemanagement.serviceTicket;
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.maciejowczarczyk.servicemanagement.files.DBFile;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
+import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatus;
+import pl.maciejowczarczyk.servicemanagement.ticketType.TicketType;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 
 import java.util.List;
@@ -24,5 +26,5 @@ public interface ServiceTicketRepository extends JpaRepository<ServiceTicket, Lo
 
     ServiceTicket findAllById(Long id);
 
-    ServiceTicket findAllByDbFileList(List<DBFile> dbFiles);
+    ServiceTicket findByDbFileListIn(List<DBFile> DBfile);
 }

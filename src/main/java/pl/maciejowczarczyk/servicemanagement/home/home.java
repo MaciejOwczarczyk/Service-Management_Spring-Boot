@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class home {
 
 
-    @GetMapping("/")
-    public String dupa() {
-        return "home";
-    }
-
-    @GetMapping("/dupa")
-    public String homeaa() {
-        return "dupa";
-    }
+//    @GetMapping("/")
+//    public String dupa() {
+//        return "home";
+//    }
+//
+//    @GetMapping("/dupa")
+//    public String homeaa() {
+//        return "dupa";
+//    }
 
 
 }
