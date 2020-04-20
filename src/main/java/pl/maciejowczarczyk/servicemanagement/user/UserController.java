@@ -40,23 +40,20 @@ public class UserController {
     @PostMapping("/edit/{id}")
     public String add(@PathVariable Long id, @ModelAttribute @Valid User user, BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("user", user);
             return "user/editUser";
         }
-
         userRepository.save(user);
         List<Authority> authorities = authorityRepository.findAll();
-        for (Authority authority : authorities) {
-            if (authority.getUser().getId().equals(user.getId())) {
-                authorityRepository.delete(authority);
-            }
-        }
+
+        authorities.stream().filter(o -> o.getUser().getId().equals(user.getId())).forEach(authorityRepository::delete);
+
         for (Role role : user.getRoles()) {
             Authority authority = new Authority();
             authority.setUser(user);
             authority.setRole(role);
             authorityRepository.save(authority);
         }
-
 
         return "redirect:../showAll";
     }
