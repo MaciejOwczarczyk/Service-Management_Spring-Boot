@@ -334,10 +334,10 @@ public class ServiceTicketController {
         IOUtils.copy(inputStream, response.getOutputStream());
     }
 
-    @GetMapping("/deleteFile/{id}/{serviceTicketId}")
-    public String deletePhoto(@PathVariable String id, @PathVariable String serviceTicketId) {
+    @GetMapping("/deleteFile/{id}/{serviceTicketIds}")
+    public String deletePhoto(@PathVariable String id, @PathVariable String serviceTicketIds) {
         dbFileStorageService.deleteFile(id);
-        return "redirect:../../details/" + serviceTicketId;
+        return "redirect:../../details/" + serviceTicketIds;
     }
 
     @ControllerAdvice
