@@ -433,7 +433,7 @@
                                        class="btn btn-circle btn-warning">
                                         <i class="fas fa-download"></i>
                                     </a>
-                                    <a href="/serviceTicket/deleteFile/${file.id}"
+                                    <a href="/serviceTicket/deleteFile/${file.id}/${serviceTicket.id}"
                                        class="btn btn-circle btn-danger">
                                         <i class="fas fa-eraser"></i>
                                     </a>
