@@ -11,12 +11,14 @@ import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.user.CurrentUser;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.Currency;
 
 @Controller
 @RequestMapping("/activity")
@@ -114,6 +116,7 @@ public class ActivityController {
                                @ModelAttribute Activity activity,
                                @RequestParam Long plannerId, Model model) {
         try {
+
 
             Planner planner = plannerRepository.findAllById(plannerId);
             String parseStart = planner.getStart().substring(0, 10);
