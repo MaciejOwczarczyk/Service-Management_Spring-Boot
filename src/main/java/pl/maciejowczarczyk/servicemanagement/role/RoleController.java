@@ -7,10 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import pl.maciejowczarczyk.servicemanagement.user.User;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/admin/role")
@@ -49,20 +51,20 @@ public class RoleController {
         return "redirect:showAll";
     }
 
-//    @GetMapping("/edit/{id}")
-//    public String edit(@PathVariable Long id, Model model) {
-//        Role role = roleRepository.findAllById(id);
-//        Set<User> users = role.getUsers();
-//        boolean check = users.stream().
-//                map(User::getRoles).anyMatch(o -> o.contains(role));
-//        if (check) {
-//            model.addAttribute("roleFail", true);
-//            model.addAttribute("roles", roleRepository.findAll());
-//            return "role/showAllRoles";
-//        }
-//        model.addAttribute("role", roleRepository.findAllById(id));
-//        return "role/addRole";
-//    }
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable Long id, Model model) {
+        Role role = roleRepository.findAllById(id);
+        Set<User> users = role.getUsers();
+        boolean check = users.stream().
+                map(User::getRoles).anyMatch(o -> o.contains(role));
+        if (check) {
+            model.addAttribute("roleFail", true);
+            model.addAttribute("roles", roleRepository.findAll());
+            return "role/showAllRoles";
+        }
+        model.addAttribute("role", roleRepository.findAllById(id));
+        return "role/addRole";
+    }
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute @Valid Role role, BindingResult result, Model model, @RequestParam String oldName) {
@@ -86,20 +88,20 @@ public class RoleController {
 
     }
 
-//    @GetMapping("/delete/{id}")
-//    public String delete(@PathVariable Long id, Model model) {
-//        Role role = roleRepository.findAllById(id);
-//        Set<User> users = role.getUsers();
-//        boolean check = users.stream().
-//                map(User::getRoles).anyMatch(o -> o.contains(role));
-//        if (check) {
-//            model.addAttribute("roleFail", true);
-//            model.addAttribute("roles", roleRepository.findAll());
-//            return "role/showAllRoles";
-//        }
-//        roleRepository.delete(role);
-//        return "redirect:../showAll";
-//    }
+        @GetMapping("/delete/{id}")
+    public String delete(@PathVariable Long id, Model model) {
+        Role role = roleRepository.findAllById(id);
+        Set<User> users = role.getUsers();
+        boolean check = users.stream().
+                map(User::getRoles).anyMatch(o -> o.contains(role));
+        if (check) {
+            model.addAttribute("roleFail", true);
+            model.addAttribute("roles", roleRepository.findAll());
+            return "role/showAllRoles";
+        }
+        roleRepository.delete(role);
+        return "redirect:../showAll";
+    }
 
     @ModelAttribute("userDetails")
     public UserDetails custom(@AuthenticationPrincipal UserDetails customUser) {

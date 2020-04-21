@@ -1,0 +1,1 @@
+INSERT INTO ServiceManagementSpringBoot.planner (id, end, start, service_ticket_id, user_id) VALUES (1, '2020-04-23T10:59:59Z', '2020-04-21T00:00:00Z', 1, 3);

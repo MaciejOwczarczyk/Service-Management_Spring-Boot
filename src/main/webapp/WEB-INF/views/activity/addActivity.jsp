@@ -17,7 +17,7 @@
     <title>Service Planner</title>
 
     <!-- Custom fonts for this template -->
-    <link href='<c:url value="../../../../resources/Front/vendor/fontawesome-free/css/all.min.css"/>' rel="stylesheet"
+    <link href='<c:url value="../../../resources/Front/vendor/fontawesome-free/css/all.min.css"/>' rel="stylesheet"
           type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
           rel="stylesheet">
@@ -242,8 +242,8 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <div class="row">
-                                    <div class="col-md-4 col-4">
-                                        <input type="hidden" name="plannerId" value="${plannerId}">
+                                    <div class="col-md-4 col-2">
+                                        <input type="hidden" name="plannerId" value="${planner.id}">
                                         Activity for intervention ${planner.start.substring(0, 10)}, ${planner.end.substring(0, 10)}<div/>
                                         <label for="ActivityDate">Date</label>
                                         <div class="input-group">
@@ -252,7 +252,12 @@
                                                         value="${currentDate}"/>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-4">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-4 col-2">
                                         <div class="input-group">
                                             <c:if test="${wrongDate == true}">
                                                 <div class="text-danger">
@@ -262,7 +267,7 @@
                                             </c:if>
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-4">
+                                    <div class="col-md-4 col-2">
                                         <div class="input-group">
                                             <c:if test="${arriveOnSiteBeforeStart == true}">
                                                 <div class="text-danger">

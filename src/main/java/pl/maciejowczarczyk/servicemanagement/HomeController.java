@@ -11,6 +11,7 @@ import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.user.CurrentUser;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.math.BigDecimal;
@@ -57,7 +58,7 @@ public class HomeController {
     }
 
     @ModelAttribute("userDetails")
-    public UserDetails custom(@AuthenticationPrincipal UserDetails customUser) {
+    public CurrentUser custom(@AuthenticationPrincipal CurrentUser customUser) {
         return customUser;
     }
 

@@ -1582,3 +1582,9 @@ INSERT INTO ServiceManagementSpringBoot.machines (id, model, serial_number, warr
 INSERT INTO ServiceManagementSpringBoot.machines (id, model, serial_number, warranty_end, warranty_start, year_of_production, company_id, machine_type_id, producer_id) VALUES (659341, 'CENTRUM OBRÓBCZE ROVER C 6-65', '100809', '2020-04-23', '2019-04-24', 2019, 122, 1, 40);
 INSERT INTO ServiceManagementSpringBoot.machines (id, model, serial_number, warranty_end, warranty_start, year_of_production, company_id, machine_type_id, producer_id) VALUES (659342, 'PIŁA PANELOWA SEKTOR 400', '100810', '2020-04-24', '2019-04-25', 2019, 123, 9, 40);
 INSERT INTO ServiceManagementSpringBoot.machines (id, model, serial_number, warranty_end, warranty_start, year_of_production, company_id, machine_type_id, producer_id) VALUES (659343, 'PIŁA PANELOWA SELCO EB 75', '100811', '2020-04-25', '2019-04-26', 2019, 124, 9, 40);
+
+INSERT INTO ServiceManagementSpringBoot.service_tickets (id, close_date, open_date, solution, title, company_id, machine_id, ticket_status_id, ticket_type_id) VALUES (1, null, '2020-04-21 16:52:44', null, 'asasaas', 3, 658883, 1, 3);
+
+INSERT INTO ServiceManagementSpringBoot.service_tickets_users (service_ticket_id, users_id) VALUES (1, 1);
+
+INSERT INTO ServiceManagementSpringBoot.planner (id, end, start, service_ticket_id, user_id) VALUES (1, '2020-04-23T10:59:59Z', '2020-04-21T00:00:00Z', 1, 3);

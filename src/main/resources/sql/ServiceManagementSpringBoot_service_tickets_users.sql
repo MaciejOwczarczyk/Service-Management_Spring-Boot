@@ -1,0 +1,1 @@
+INSERT INTO ServiceManagementSpringBoot.service_tickets_users (service_ticket_id, users_id) VALUES (1, 1);

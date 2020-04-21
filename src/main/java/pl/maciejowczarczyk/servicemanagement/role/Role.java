@@ -4,9 +4,12 @@ package pl.maciejowczarczyk.servicemanagement.role;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import pl.maciejowczarczyk.servicemanagement.user.User;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "role")
@@ -22,5 +25,8 @@ public class Role implements Serializable {
 
     @Column(name = "role")
     private String name;
+
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
 
 }

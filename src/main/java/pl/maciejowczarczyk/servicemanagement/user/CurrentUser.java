@@ -1,20 +1,21 @@
 package pl.maciejowczarczyk.servicemanagement.user;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
-public class CurrentUser extends org.springframework.security.core.userdetails.User {
+public class CurrentUser extends User {
 
-    private final User user;
+    private final pl.maciejowczarczyk.servicemanagement.user.User user;
 
     public CurrentUser(String username, String password, Collection<? extends GrantedAuthority> authorities,
-                       User user) {
+                       pl.maciejowczarczyk.servicemanagement.user.User user) {
         super(username, password, authorities);
         this.user = user;
     }
 
-    public User getUser() {
+    public pl.maciejowczarczyk.servicemanagement.user.User getUser() {
         return user;
     }
 }

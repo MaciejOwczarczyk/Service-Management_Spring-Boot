@@ -11,6 +11,7 @@ import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.user.User;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.time.LocalDate;
@@ -24,7 +25,6 @@ public class ActivityController {
 
     private final ServiceTicketRepository serviceTicketRepository;
     private final ActivityRepository activityRepository;
-    private final DBFileRepository dbFileRepository;
     private final PlannerRepository plannerRepository;
     private final UserRepository userRepository;
 
@@ -32,7 +32,6 @@ public class ActivityController {
     @GetMapping("/add/{plannerId}")
     public String add(@PathVariable Long plannerId, Model model) {
         model.addAttribute("activity", new Activity());
-        model.addAttribute("plannerId", plannerId);
         model.addAttribute("planner", plannerRepository.findAllById(plannerId));
         return "activity/addActivity";
     }
@@ -59,32 +58,31 @@ public class ActivityController {
 
             if (parseDate.isBefore(parseStartToLocalDate) || parseDate.isAfter(parseEndToLocalDate)) {
                 model.addAttribute("wrongDate", true);
-                model.addAttribute("plannerId", plannerId);
                 model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else if (parseArriveOnSite.isBefore(parseStartFromBase)) {
                 model.addAttribute("arriveOnSiteBeforeStart", true);
-                model.addAttribute("plannerId", plannerId);
+                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else if (parseStartWorkOnSite.isBefore(parseArriveOnSite)) {
                 model.addAttribute("startWorkBeforeArrival", true);
-                model.addAttribute("plannerId", plannerId);
+                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else if (parseFinishWorkOnSite.isBefore(parseStartWorkOnSite)) {
                 model.addAttribute("finishWorkOnSiteBeforeStartWork", true);
-                model.addAttribute("plannerId", plannerId);
+                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else if (parseStartDriveFromSite.isBefore(parseFinishWorkOnSite)) {
                 model.addAttribute("startDriveFromSiteBeforeFinishWork", true);
-                model.addAttribute("plannerId", plannerId);
+                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else if (parseArriveToBase.isBefore(parseStartDriveFromSite)) {
                 model.addAttribute("arriveToBaseBeforeStartFromSite", true);
-                model.addAttribute("plannerId", plannerId);
+                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else if ("".equals(activity.getDescription())) {
                 model.addAttribute("descriptionFail", true);
-                model.addAttribute("plannerId", plannerId);
+                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else {
                 activity.setUser(userRepository.findAllByUsername(customUser.getUsername()));

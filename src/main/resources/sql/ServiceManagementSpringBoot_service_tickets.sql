@@ -1,0 +1,1 @@
+INSERT INTO ServiceManagementSpringBoot.service_tickets (id, close_date, open_date, solution, title, company_id, machine_id, ticket_status_id, ticket_type_id) VALUES (1, null, '2020-04-21 16:52:44', null, 'asasaas', 3, 658883, 1, 3);
