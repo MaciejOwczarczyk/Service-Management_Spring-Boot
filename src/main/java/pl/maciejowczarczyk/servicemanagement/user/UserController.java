@@ -76,7 +76,7 @@ public class UserController {
             model.addAttribute("registerFail", true);
             return "user/addUser";
         }
-//        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+
         userService.saveUser(user);
 
         for (Role role : user.getRoles()) {

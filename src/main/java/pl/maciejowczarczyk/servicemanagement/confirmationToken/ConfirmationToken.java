@@ -7,6 +7,8 @@ import lombok.Setter;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity
@@ -15,6 +17,8 @@ import java.util.Date;
 @Getter
 @Setter
 public class ConfirmationToken {
+
+    private static final int EXPIRATION = 60 * 24;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +32,5 @@ public class ConfirmationToken {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
-
 
 }

@@ -4,13 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.authority.Authority;
 import pl.maciejowczarczyk.servicemanagement.authority.AuthorityRepository;
 import pl.maciejowczarczyk.servicemanagement.confirmationToken.ConfirmationToken;
@@ -36,6 +34,65 @@ public class Register {
     private final UserServiceImpl userService;
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final JavaMailSender javaMailSender;
+
+    @GetMapping("/resetPassword")
+    public String resetPassword(Model model) {
+        return "login/resetPassword";
+    }
+
+    @PostMapping("/resetPassword")
+    public String resetPassword(Model model, @RequestParam String username) {
+        User user = userService.findByUserName(username);
+        if (!userService.findAll().contains(user)) {
+            model.addAttribute("noUser", true);
+            return "login/resetPassword";
+        } else {
+            ConfirmationToken confirmationToken = new ConfirmationToken();
+            confirmationToken.setUser(user);
+            confirmationToken.setCreatedDate(new Date());
+            confirmationToken.setConfirmationToken(UUID.randomUUID().toString());
+            confirmationTokenRepository.save(confirmationToken);
+            SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+            simpleMailMessage.setTo(username.toLowerCase());
+            simpleMailMessage.setSubject("ResetPassword");
+            simpleMailMessage.setText("To reset your password, please click here: " +
+                    "http://localhost:8080/resetPasswordProcess/" + confirmationToken.getConfirmationToken());
+            javaMailSender.send(simpleMailMessage);
+            return "login/checkEmailForResetPassword";
+        }
+    }
+
+    @GetMapping("/resetPasswordProcess/{token}")
+    public String resetPasswordProcess(@PathVariable String token, Model model) {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
+        if (confirmationToken != null) {
+            model.addAttribute("confirmationTokenId", confirmationToken.getId());
+            return "login/resetPasswordProcess";
+        } else {
+            return "login/invalidResetPassword";
+        }
+    }
+
+    @PostMapping("/resetPasswordProcess/{token}")
+    public String resetPasswordProcess(@PathVariable String token, Model model, @RequestParam String confirmationTokenId, @RequestParam String password, @RequestParam String rePassword) {
+        if (!password.equals(rePassword)) {
+            model.addAttribute("passwordFail", true);
+            model.addAttribute("confirmationTokenId", confirmationTokenId);
+            return "login/resetPasswordProcess";
+        } else {
+            User user = userService.findByUserName(confirmationTokenRepository.findByConfirmationToken(token).getUser().getUsername());
+            user.setPassword(password);
+            userService.saveUser(user);
+
+            for (Role role : user.getRoles()) {
+                Authority authority = new Authority();
+                authority.setRole(role);
+                authority.setUser(user);
+                authorityRepository.save(authority);
+            }
+            return "login/resetPasswordSuccess";
+        }
+    }
 
     @GetMapping("/register")
     public String register(Model model) {
@@ -82,15 +139,15 @@ public class Register {
             simpleMailMessage.setTo(user.getUsername().toLowerCase());
             simpleMailMessage.setSubject("CompleteRegistration");
             simpleMailMessage.setText("To confirm your account, please click here: " +
-                    "http://localhost:8080/confirm-account?token=" + confirmationToken.getConfirmationToken());
+                    "http://localhost:8080/confirm-account/" + confirmationToken.getConfirmationToken());
 
             javaMailSender.send(simpleMailMessage);
 
             return "login/checkEmailForConfirmation";
     }
 
-    @GetMapping("/confirm-account")
-    public String confirmUserAccount(Model model, @RequestParam("token") String token) {
+    @GetMapping("/confirm-account/{token}")
+    public String confirmUserAccount(@PathVariable String token) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
 
         if (confirmationToken != null) {
