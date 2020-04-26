@@ -26,11 +26,18 @@ public class ConfirmationToken {
 
     private String confirmationToken;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
+//    @Temporal(TemporalType.TIMESTAMP)
+    private Date expirationDate = calculateExpiryDate();
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
+
+    private static Date calculateExpiryDate() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Timestamp(cal.getTime().getTime()));
+        cal.add(Calendar.MINUTE, EXPIRATION);
+        return new Date(cal.getTime().getTime());
+    }
 
 }

@@ -21,6 +21,7 @@ import javax.validation.Valid;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.http.HttpRequest;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -49,7 +50,6 @@ public class Register {
         } else {
             ConfirmationToken confirmationToken = new ConfirmationToken();
             confirmationToken.setUser(user);
-            confirmationToken.setCreatedDate(new Date());
             confirmationToken.setConfirmationToken(UUID.randomUUID().toString());
             confirmationTokenRepository.save(confirmationToken);
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
@@ -63,24 +63,27 @@ public class Register {
     }
 
     @GetMapping("/resetPasswordProcess/{token}")
-    public String resetPasswordProcess(@PathVariable String token, Model model) {
+    public String resetPasswordProcess(@PathVariable String token) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
-        if (confirmationToken != null) {
-            model.addAttribute("confirmationTokenId", confirmationToken.getId());
-            return "login/resetPasswordProcess";
-        } else {
+        Calendar calendar = Calendar.getInstance();
+        if (confirmationToken == null || (confirmationToken.getExpirationDate().getTime() - calendar.getTime().getTime()) <= 0) {
             return "login/invalidResetPassword";
+        } else {
+            return "login/resetPasswordProcess";
         }
     }
 
     @PostMapping("/resetPasswordProcess/{token}")
-    public String resetPasswordProcess(@PathVariable String token, Model model, @RequestParam String confirmationTokenId, @RequestParam String password, @RequestParam String rePassword) {
+    public String resetPasswordProcess(@PathVariable String token, Model model,
+                                       @RequestParam String password,
+                                       @RequestParam String rePassword) {
+        ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
         if (!password.equals(rePassword)) {
             model.addAttribute("passwordFail", true);
-            model.addAttribute("confirmationTokenId", confirmationTokenId);
+//            model.addAttribute("confirmationTokenId", confirmationTokenId);
             return "login/resetPasswordProcess";
         } else {
-            User user = userService.findByUserName(confirmationTokenRepository.findByConfirmationToken(token).getUser().getUsername());
+            User user = userService.findByUserName(confirmationToken.getUser().getUsername().toLowerCase());
             user.setPassword(password);
             userService.saveUser(user);
 
@@ -130,7 +133,6 @@ public class Register {
             }
 
             ConfirmationToken confirmationToken = new ConfirmationToken();
-            confirmationToken.setCreatedDate(new Date());
             confirmationToken.setUser(user);
             confirmationToken.setConfirmationToken(UUID.randomUUID().toString());
             confirmationTokenRepository.save(confirmationToken);
@@ -142,20 +144,20 @@ public class Register {
                     "http://localhost:8080/confirm-account/" + confirmationToken.getConfirmationToken());
 
             javaMailSender.send(simpleMailMessage);
-
             return "login/checkEmailForConfirmation";
     }
 
     @GetMapping("/confirm-account/{token}")
     public String confirmUserAccount(@PathVariable String token) {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
+        Calendar calendar = Calendar.getInstance();
 
-        if (confirmationToken != null) {
+        if (confirmationToken == null || (confirmationToken.getExpirationDate().getTime() - calendar.getTime().getTime()) <= 0) {
+            return "login/invalidRegistration";
+        } else {
             User user = userRepository.findAllById(confirmationToken.getUser().getId());
             userService.activateUser(user);
             return "login/successRegistration";
-        } else {
-            return "login/invalidRegistration";
         }
     }
 
