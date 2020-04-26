@@ -1,5 +1,7 @@
 package pl.maciejowczarczyk.servicemanagement.user;
 
+import java.util.List;
+
 public interface UserService {
 
     User findByUserName(String name);
@@ -7,4 +9,6 @@ public interface UserService {
     void saveUser(User user);
 
     void activateUser(User user);
+
+    List<User> findAll();
 }

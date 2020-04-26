@@ -10,6 +10,7 @@ import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,8 +36,10 @@ public class UserServiceImpl implements UserService {
     public void saveUser(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
-        Role userRole = roleRepository.findByName("ROLE_ADMIN");
-        user.setRoles(new HashSet<Role>(Collections.singletonList(userRole)));
+        if (user.getRoles().size() == 0) {
+            Role userRole = roleRepository.findByName("ROLE_ADMIN");
+            user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
+        }
         userRepository.save(user);
     }
 
@@ -46,5 +49,10 @@ public class UserServiceImpl implements UserService {
             user.setEnabled(true);
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 }

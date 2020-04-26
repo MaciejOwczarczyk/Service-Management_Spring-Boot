@@ -3,7 +3,7 @@ INSERT INTO ServiceManagementSpringBoot.role (role) VALUES ('ROLE_USER');
 INSERT INTO ServiceManagementSpringBoot.role (role) VALUES ('ROLE_ADMIN');
 INSERT INTO ServiceManagementSpringBoot.role (role) VALUES ('ROLE_ENGINEER');
 
-INSERT INTO ServiceManagementSpringBoot.users (id, enabled, first_name, last_Name, password, username) VALUES (1, true, 'maciej', 'maciej', '$2a$10$O54eMH7MAkyHRDhgqoRsUuLDxtEUn8eAek/.TLRx1hjoEyXjQNVbu', 'maciek@wp.pl');
+INSERT INTO ServiceManagementSpringBoot.users (id, enabled, first_name, last_Name, password, username) VALUES (1, true, 'maciej', 'maciej', '$2a$10$O54eMH7MAkyHRDhgqoRsUuLDxtEUn8eAek/.TLRx1hjoEyXjQNVbu', 'maciek1321@vp.pl');
 INSERT INTO ServiceManagementSpringBoot.users (id, enabled, first_name, last_Name, password, username) VALUES (2, true, 'edyta', 'edyta', '$2a$10$O54eMH7MAkyHRDhgqoRsUuLDxtEUn8eAek/.TLRx1hjoEyXjQNVbu', 'edyta@wp.pl');
 INSERT INTO ServiceManagementSpringBoot.users (id, enabled, first_name, last_Name, password, username) VALUES (3, true, 'marcin', 'marcin', '$2a$10$O54eMH7MAkyHRDhgqoRsUuLDxtEUn8eAek/.TLRx1hjoEyXjQNVbu', 'marcin@wp.pl');
 
@@ -12,10 +12,10 @@ INSERT INTO ServiceManagementSpringBoot.user_role (user_id, role_id) VALUES (3, 
 INSERT INTO ServiceManagementSpringBoot.user_role (user_id, role_id) VALUES (1, 2);
 INSERT INTO ServiceManagementSpringBoot.user_role (user_id, role_id) VALUES (1, 3);
 
-INSERT INTO ServiceManagementSpringBoot.authorities (id, authority, username) VALUES (1, 'ROLE_ADMIN', 'maciek@wp.pl');
+INSERT INTO ServiceManagementSpringBoot.authorities (id, authority, username) VALUES (1, 'ROLE_ADMIN', 'maciek1321@vp.pl');
 INSERT INTO ServiceManagementSpringBoot.authorities (id, authority, username) VALUES (2, 'ROLE_ENGINEER', 'edyta@wp.pl');
 INSERT INTO ServiceManagementSpringBoot.authorities (id, authority, username) VALUES (3, 'ROLE_ENGINEER', 'marcin@wp.pl');
-INSERT INTO ServiceManagementSpringBoot.authorities (id, authority, username) VALUES (4, 'ROLE_ENGINEER', 'maciek@wp.pl');
+INSERT INTO ServiceManagementSpringBoot.authorities (id, authority, username) VALUES (4, 'ROLE_ENGINEER', 'maciek1321@vp.pl');
 
 INSERT INTO ServiceManagementSpringBoot.ticket_types (id, name) VALUES (1, 'Warranty');
 INSERT INTO ServiceManagementSpringBoot.ticket_types (id, name) VALUES (2, 'After Warranty');

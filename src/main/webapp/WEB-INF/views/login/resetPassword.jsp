@@ -55,24 +55,16 @@
                                             <input name="username" class="form-control form-control-user"
                                                    placeholder="Enter Email Address...">
                                         </div>
-                                        <div class="form-group">
-                                            <input type="password" name="password"
-                                                   class="form-control form-control-user" placeholder="Password">
-                                        </div>
-                                        <div class="form-group">
-                                            <div class="custom-control custom-checkbox small">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck">
-                                                <label class="custom-control-label" for="customCheck">Remember
-                                                    Me</label>
-                                            </div>
-                                        </div>
+                                        <c:if test="${noUser == true}">
+                                            <tr class="error">Email hasn't been assigned to any account</tr>
+                                        </c:if>
 
-                                        <input type="submit" class="btn btn-primary btn-user btn-block" value="Login">
+                                        <input type="submit" class="btn btn-primary btn-user btn-block" value="Reset">
 
                                     </form>
                                     <hr>
                                     <div class="text-center">
-                                        <a class="small" href="/resetPassword">Forgot password ?&nbsp</a>
+                                        <a class="small" href="/login">Login! &nbsp;</a>
                                         <a class="small" href="/register">Create an Account!</a>
                                     </div>
                                 </div>
