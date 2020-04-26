@@ -40,7 +40,7 @@
                             <form:form method="post">
                             <form class="user">
                                 <div class="form-group row">
-                                    <input type="hidden" name="confirmationTokenId" value="${confirmationTokenId}">
+<%--                                    <input type="hidden" name="confirmationTokenId" value="${confirmationTokenId}">--%>
                                     <div class="col-sm-6 mb-3 mb-sm-0">
                                         Password
                                         <label>
