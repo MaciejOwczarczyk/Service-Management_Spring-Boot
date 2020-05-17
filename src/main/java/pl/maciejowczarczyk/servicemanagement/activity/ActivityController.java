@@ -43,6 +43,7 @@ public class ActivityController {
                       @ModelAttribute Activity activity, @RequestParam Long plannerId,
                       Model model) {
         try {
+
             ServiceTicket serviceTicket = serviceTicketRepository.findAllByPlanners(plannerRepository.findAllById(plannerId));
             Planner planner = plannerRepository.findAllById(plannerId);
             String parseStart = planner.getStart().substring(0, 10);
