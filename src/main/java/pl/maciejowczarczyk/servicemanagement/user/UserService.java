@@ -11,4 +11,6 @@ public interface UserService {
     void activateUser(User user);
 
     List<User> findAll();
+
+    boolean containsUser(User user);
 }
