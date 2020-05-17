@@ -80,7 +80,6 @@ public class Register {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
         if (!password.equals(rePassword)) {
             model.addAttribute("passwordFail", true);
-//            model.addAttribute("confirmationTokenId", confirmationTokenId);
             return "login/resetPasswordProcess";
         } else {
             User user = userService.findByUserName(confirmationToken.getUser().getUsername().toLowerCase());

@@ -26,7 +26,6 @@ public class ConfirmationToken {
 
     private String confirmationToken;
 
-//    @Temporal(TemporalType.TIMESTAMP)
     private Date expirationDate = calculateExpiryDate();
 
     @OneToOne(fetch = FetchType.EAGER)
