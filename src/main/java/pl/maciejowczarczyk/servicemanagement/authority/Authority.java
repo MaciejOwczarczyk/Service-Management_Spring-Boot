@@ -27,8 +27,4 @@ public class Authority {
     @JoinColumn(name = "username", referencedColumnName = "username")
     private User user;
 
-    public Authority(Role role, User user) {
-        this.role = role;
-        this.user = user;
-    }
 }

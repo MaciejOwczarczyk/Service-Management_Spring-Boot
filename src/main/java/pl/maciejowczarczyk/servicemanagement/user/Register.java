@@ -21,10 +21,8 @@ import javax.validation.Valid;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.http.HttpRequest;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
 
 @Controller
 @RequiredArgsConstructor
@@ -37,17 +35,23 @@ public class Register {
     private final JavaMailSender javaMailSender;
 
     @GetMapping("/resetPassword")
-    public String resetPassword(Model model) {
+    public String resetPassword() {
         return "login/resetPassword";
+    }
+
+    private List<User> findAllUsers() {
+        return userService.findAll();
     }
 
     @PostMapping("/resetPassword")
     public String resetPassword(Model model, @RequestParam String username) {
         User user = userService.findByUserName(username);
-        if (!userService.findAll().contains(user)) {
+
+        if (!userService.containsUser(user)) {
             model.addAttribute("noUser", true);
             return "login/resetPassword";
         } else {
+
             ConfirmationToken confirmationToken = new ConfirmationToken();
             confirmationToken.setUser(user);
             confirmationToken.setConfirmationToken(UUID.randomUUID().toString());
@@ -80,7 +84,6 @@ public class Register {
         ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
         if (!password.equals(rePassword)) {
             model.addAttribute("passwordFail", true);
-//            model.addAttribute("confirmationTokenId", confirmationTokenId);
             return "login/resetPasswordProcess";
         } else {
             User user = userService.findByUserName(confirmationToken.getUser().getUsername().toLowerCase());

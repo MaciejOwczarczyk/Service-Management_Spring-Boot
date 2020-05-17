@@ -117,7 +117,6 @@ public class ActivityController {
                                @RequestParam Long plannerId, Model model) {
         try {
 
-
             Planner planner = plannerRepository.findAllById(plannerId);
             String parseStart = planner.getStart().substring(0, 10);
             String parseEnd = planner.getEnd().substring(0, 10);
