@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.authority.Authority;
-import pl.maciejowczarczyk.servicemanagement.authority.AuthorityRepository;
+import pl.maciejowczarczyk.servicemanagement.authority.AuthorityServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
+    private final AuthorityServiceImpl authorityService;
     private final RoleRepository roleRepository;
     private final UserServiceImpl userService;
 
@@ -44,15 +44,15 @@ public class UserController {
             return "user/editUser";
         }
         userRepository.save(user);
-        List<Authority> authorities = authorityRepository.findAll();
+        List<Authority> authorities = authorityService.findAllAuthorities();
 
-        authorities.stream().filter(o -> o.getUser().getId().equals(user.getId())).forEach(authorityRepository::delete);
+        authorities.stream().filter(o -> o.getUser().getId().equals(user.getId())).forEach(authorityService::deleteAuthority);
 
         for (Role role : user.getRoles()) {
             Authority authority = new Authority();
             authority.setUser(user);
             authority.setRole(role);
-            authorityRepository.save(authority);
+            authorityService.saveAuthority(authority);
         }
 
         return "redirect:../showAll";
@@ -82,8 +82,7 @@ public class UserController {
         for (Role role : user.getRoles()) {
             Authority authority = new Authority();
             authority.setUser(user);
-            authority.setRole(role);
-            authorityRepository.save(authority);
+            authorityService.saveAuthority(authority);
         }
         return "redirect:showAll";
     }

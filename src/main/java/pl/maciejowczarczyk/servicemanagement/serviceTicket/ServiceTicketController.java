@@ -21,8 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.maciejowczarczyk.servicemanagement.activity.Activity;
 import pl.maciejowczarczyk.servicemanagement.activity.ActivityRepository;
+import pl.maciejowczarczyk.servicemanagement.activity.ActivityServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.company.Company;
 import pl.maciejowczarczyk.servicemanagement.company.CompanyRepository;
+import pl.maciejowczarczyk.servicemanagement.company.CompanyService;
+import pl.maciejowczarczyk.servicemanagement.company.CompanyServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.files.DBFile;
 import pl.maciejowczarczyk.servicemanagement.files.DBFileStorageService;
 import pl.maciejowczarczyk.servicemanagement.machine.Machine;
@@ -56,14 +59,14 @@ public class ServiceTicketController {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final ServiceTicketRepository serviceTicketRepository;
-    private final CompanyRepository companyRepository;
+    private final CompanyServiceImpl companyService;
     private final TicketTypeRepository ticketTypeRepository;
     private final MachineRepository machineRepository;
     private final UserRepository userRepository;
     private final TicketStatusRepository ticketStatusRepository;
     private final DBFileStorageService dbFileStorageService;
     private final PlannerRepository plannerRepository;
-    private final ActivityRepository activityRepository;
+    private final ActivityServiceImpl activityService;
     private final UserDetailsService userDetailsService;
 
     @GetMapping("/addStep1")
@@ -91,7 +94,7 @@ public class ServiceTicketController {
             return "serviceTicket/addTicketStep1";
         }
 
-        List<User> users = Collections.singletonList(userRepository.findAllByUsername(customUser.getUsername()));
+        List<User> users = Collections.singletonList(userRepository.findByUsername(customUser.getUsername()));
         serviceTicket.setUsers(users);
         serviceTicket.setTicketStatus(ticketStatusRepository.findAllByName("Open"));
         model.addAttribute("machines", findMachines(serviceTicket));
@@ -193,7 +196,7 @@ public class ServiceTicketController {
         ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
         model.addAttribute("serviceTicket", serviceTicket);
         model.addAttribute("machines", machineRepository.findAllByCompany(serviceTicket.getCompany()));
-        Company company = companyRepository.findByServiceTickets(serviceTicket);
+        Company company = companyService.findCompanyByServiceTicket(serviceTicket);
         model.addAttribute("company", company);
         return "serviceTicket/editServiceTicket";
     }
@@ -232,9 +235,9 @@ public class ServiceTicketController {
 
         boolean check = customerUser.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
         if (check) {
-            activities = activityRepository.findAllByServiceTicket(serviceTicket);
+            activities = activityService.findAllByServiceTicket(serviceTicket);
         } else {
-            activities = activityRepository.findAllByServiceTicketAndUser(serviceTicket, userRepository.findAllByUsername(customerUser.getUsername()));
+            activities = activityService.findAllByServiceTicketAndUser(serviceTicket, userRepository.findByUsername(customerUser.getUsername()));
         }
 
         List<Activity> sortedActivities = activities.stream().sorted(Comparator.comparing(Activity::getId)).collect(Collectors.toList());
@@ -289,7 +292,7 @@ public class ServiceTicketController {
         if (check) {
             model.addAttribute("files", dbFileStorageService.loadAllByServiceTicket(serviceTicket));
         } else {
-            User user = userRepository.findAllByUsername(customerUser.getUsername());
+            User user = userRepository.findByUsername(customerUser.getUsername());
             List<DBFile> files = dbFileStorageService.loadAllByUser(user);
             model.addAttribute("files", files);
         }
@@ -309,7 +312,7 @@ public class ServiceTicketController {
     @PostMapping("/details/{id}")
     public String serviceTicketDetailsFileUpload(@AuthenticationPrincipal UserDetails customUser, @PathVariable Long id, @RequestParam("file") MultipartFile file) {
         ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
-        User user = userRepository.findAllByUsername(customUser.getUsername());
+        User user = userRepository.findByUsername(customUser.getUsername());
         dbFileStorageService.storeFile(user, file, serviceTicket);
         return "redirect:../details/" + id;
     }
@@ -363,7 +366,7 @@ public class ServiceTicketController {
 
     @ModelAttribute("companies")
     public List<Company> fetchAllCompanies() {
-        return companyRepository.findAll();
+        return companyService.findAllCompanies();
     }
 
     @ModelAttribute("ticketTypes")

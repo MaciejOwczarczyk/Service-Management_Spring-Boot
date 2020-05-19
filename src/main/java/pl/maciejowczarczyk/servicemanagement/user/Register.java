@@ -10,9 +10,10 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.authority.Authority;
-import pl.maciejowczarczyk.servicemanagement.authority.AuthorityRepository;
+import pl.maciejowczarczyk.servicemanagement.authority.AuthorityService;
+import pl.maciejowczarczyk.servicemanagement.authority.AuthorityServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.confirmationToken.ConfirmationToken;
-import pl.maciejowczarczyk.servicemanagement.confirmationToken.ConfirmationTokenRepository;
+import pl.maciejowczarczyk.servicemanagement.confirmationToken.ConfirmationTokenServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,9 +30,9 @@ import java.util.function.Predicate;
 public class Register {
 
     private final UserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
+    private final AuthorityServiceImpl authorityService;
     private final UserServiceImpl userService;
-    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final ConfirmationTokenServiceImpl confirmationTokenService;
     private final JavaMailSender javaMailSender;
 
     @GetMapping("/resetPassword")
@@ -55,7 +56,7 @@ public class Register {
             ConfirmationToken confirmationToken = new ConfirmationToken();
             confirmationToken.setUser(user);
             confirmationToken.setConfirmationToken(UUID.randomUUID().toString());
-            confirmationTokenRepository.save(confirmationToken);
+            confirmationTokenService.saveConfirmationToken(confirmationToken);
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
             simpleMailMessage.setTo(username.toLowerCase());
             simpleMailMessage.setSubject("ResetPassword");
@@ -68,7 +69,7 @@ public class Register {
 
     @GetMapping("/resetPasswordProcess/{token}")
     public String resetPasswordProcess(@PathVariable String token) {
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
+        ConfirmationToken confirmationToken = confirmationTokenService.findByConfirmationToken(token);
         Calendar calendar = Calendar.getInstance();
         if (confirmationToken == null || (confirmationToken.getExpirationDate().getTime() - calendar.getTime().getTime()) <= 0) {
             return "login/invalidResetPassword";
@@ -81,7 +82,7 @@ public class Register {
     public String resetPasswordProcess(@PathVariable String token, Model model,
                                        @RequestParam String password,
                                        @RequestParam String rePassword) {
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
+        ConfirmationToken confirmationToken = confirmationTokenService.findByConfirmationToken(token);
         if (!password.equals(rePassword)) {
             model.addAttribute("passwordFail", true);
             return "login/resetPasswordProcess";
@@ -94,7 +95,7 @@ public class Register {
                 Authority authority = new Authority();
                 authority.setRole(role);
                 authority.setUser(user);
-                authorityRepository.save(authority);
+                authorityService.saveAuthority(authority);
             }
             return "login/resetPasswordSuccess";
         }
@@ -132,13 +133,13 @@ public class Register {
                 Authority authority = new Authority();
                 authority.setRole(role);
                 authority.setUser(user);
-                authorityRepository.save(authority);
+                authorityService.saveAuthority(authority);
             }
 
             ConfirmationToken confirmationToken = new ConfirmationToken();
             confirmationToken.setUser(user);
             confirmationToken.setConfirmationToken(UUID.randomUUID().toString());
-            confirmationTokenRepository.save(confirmationToken);
+            confirmationTokenService.saveConfirmationToken(confirmationToken);
 
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
             simpleMailMessage.setTo(user.getUsername().toLowerCase());
@@ -152,7 +153,7 @@ public class Register {
 
     @GetMapping("/confirm-account/{token}")
     public String confirmUserAccount(@PathVariable String token) {
-        ConfirmationToken confirmationToken = confirmationTokenRepository.findByConfirmationToken(token);
+        ConfirmationToken confirmationToken = confirmationTokenService.findByConfirmationToken(token);
         Calendar calendar = Calendar.getInstance();
 
         if (confirmationToken == null || (confirmationToken.getExpirationDate().getTime() - calendar.getTime().getTime()) <= 0) {

@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.company.Company;
-import pl.maciejowczarczyk.servicemanagement.company.CompanyRepository;
+import pl.maciejowczarczyk.servicemanagement.company.CompanyServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.machineType.MachineType;
 import pl.maciejowczarczyk.servicemanagement.machineType.MachineTypeRepository;
 import pl.maciejowczarczyk.servicemanagement.producer.Producer;
@@ -26,7 +26,7 @@ import java.util.Optional;
 public class MachineController {
 
     private final MachineRepository machineRepository;
-    private final CompanyRepository companyRepository;
+    private final CompanyServiceImpl companyService;
     private final ProducerRepository producerRepository;
     private final MachineTypeRepository machineTypeRepository;
     private final ServiceTicketRepository serviceTicketRepository;
@@ -89,7 +89,7 @@ public class MachineController {
 
     @ModelAttribute("companies")
     public List<Company> fetchAllCompanies() {
-        return companyRepository.findAll();
+        return companyService.findAllCompanies();
     }
 
     @ModelAttribute("producers")
