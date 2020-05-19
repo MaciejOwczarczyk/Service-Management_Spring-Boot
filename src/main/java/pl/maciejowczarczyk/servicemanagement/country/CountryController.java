@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.producer.Producer;
-import pl.maciejowczarczyk.servicemanagement.producer.ProducerRepository;
+import pl.maciejowczarczyk.servicemanagement.producer.ProducerServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CountryController {
 
-    private final CountryRepository countryRepository;
-    private final ProducerRepository producerRepository;
+    private final CountryServiceImpl countryService;
+    private final ProducerServiceImpl producerService;
 
     @GetMapping("/add")
     public String add(Model model) {
@@ -32,61 +32,61 @@ public class CountryController {
         if (result.hasErrors()) {
             return "country/addCountry";
         }
-        List<Country> countries = countryRepository.findAll();
+        List<Country> countries = countryService.findAllCountries();
         boolean check = countries.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(country.getName().toLowerCase()));
         if (check) {
             model.addAttribute("countryFail", true);
             return "country/addCountry";
         }
-        countryRepository.save(country);
+        countryService.saveCountry(country);
         return "redirect:showAll";
     }
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        model.addAttribute("countries", countryRepository.findAll());
+        model.addAttribute("countries", countryService.findAllCountries());
         return "country/showAllCountries";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        model.addAttribute("country", countryRepository.findAllById(id));
+        model.addAttribute("country", countryService.findCountryById(id));
         return "country/addCountry";
     }
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute @Valid Country country, BindingResult result, Model model, @RequestParam String oldName) {
         if (country.getName().equals(oldName)) {
-            countryRepository.save(country);
+            countryService.saveCountry(country);
             return "redirect:../showAll";
         } else if (result.hasErrors()) {
-            model.addAttribute("country", countryRepository.findAllById(country.getId()));
+            model.addAttribute("country", countryService.findCountryById(country.getId()));
             return "country/addCountry";
         }
 
-        List<Country> countries = countryRepository.findAll();
+        List<Country> countries = countryService.findAllCountries();
         boolean check = countries.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(country.getName().toLowerCase()));
         if (check) {
             model.addAttribute("countryFail", true);
-            model.addAttribute("country", countryRepository.findAllById(country.getId()));
+            model.addAttribute("country", countryService.findCountryById(country.getId()));
             return "country/addCountry";
         }
 
-        countryRepository.save(country);
+        countryService.saveCountry(country);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        Country country = countryRepository.findAllById(id);
-        List<Producer> producers = producerRepository.findAll();
+        Country country = countryService.findCountryById(id);
+        List<Producer> producers = producerService.findAllProducers();
         boolean check = producers.stream().map(o -> o.getCountry().getId()).anyMatch(o -> o.equals(country.getId()));
         if (check) {
             model.addAttribute("countryFailed", true);
-            model.addAttribute("countries", countryRepository.findAll());
+            model.addAttribute("countries", countryService.findAllCountries());
             return "country/showAllCountries";
         }
-        countryRepository.delete(country);
+        countryService.deleteCountry(country);
         return "redirect:../showAll";
     }
 

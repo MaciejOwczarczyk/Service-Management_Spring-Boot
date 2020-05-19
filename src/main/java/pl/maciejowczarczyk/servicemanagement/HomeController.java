@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
-import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
+import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
 import pl.maciejowczarczyk.servicemanagement.user.CurrentUser;
@@ -26,7 +26,7 @@ public class HomeController {
 
     private final ServiceTicketRepository serviceTicketRepository;
     private final UserRepository userRepository;
-    private final PlannerRepository plannerRepository;
+    private final PlannerServiceImpl plannerService;
 
     @GetMapping("/")
     public String home(@AuthenticationPrincipal UserDetails customUser, Model model) {
@@ -34,7 +34,7 @@ public class HomeController {
         if (checkOpenTickets) {
             model.addAttribute("openTickets", serviceTicketRepository.findAllByTicketStatusName("Open").size());
         } else {
-            Set<Planner> plannerList = plannerRepository.findAllByUserUsername(customUser.getUsername());
+            Set<Planner> plannerList = getPlannersByUserUsername(customUser);
             Set<ServiceTicket> serviceTickets = plannerList.stream().map(Planner::getServiceTicket).collect(Collectors.toSet());
             List<ServiceTicket> temp = serviceTickets.stream().filter(o -> o.getTicketStatus().getName().equals("Open")).collect(Collectors.toList());
             model.addAttribute("openTickets", temp.size());
@@ -44,7 +44,7 @@ public class HomeController {
         if (checkAllTickets) {
             model.addAttribute("allTickets", serviceTicketRepository.findAll().size());
         } else {
-            Set<Planner> planners = plannerRepository.findAllByUserUsername(customUser.getUsername());
+            Set<Planner> planners = getPlannersByUserUsername(customUser);
             Set<ServiceTicket> serviceTicketSet = planners.stream().map(Planner::getServiceTicket).collect(Collectors.toSet());
 //            List<ServiceTicket> temp2 = serviceTicketSet.stream().filter(o -> o.getTicketStatus().getName().equals("Closed")).collect(Collectors.toList());
             model.addAttribute("allTickets", serviceTicketSet.size());
@@ -74,7 +74,7 @@ public class HomeController {
             }
             return getBigDecimal("Warranty", serviceTicketsSize);
         } else {
-            Set<Planner> allWarrantyInterventionsForFieldEngineer = plannerRepository.findAllByUserUsername(customUser.getUsername())
+            Set<Planner> allWarrantyInterventionsForFieldEngineer = getPlannersByUserUsername(customUser)
                     .stream()
                     .filter(o -> o.getServiceTicket().getTicketType().getName().equals("Warranty"))
                     .collect(Collectors.toSet());
@@ -97,7 +97,7 @@ public class HomeController {
             }
             return getBigDecimal("After Warranty", serviceTicketsSize);
         } else {
-            Set<Planner> allAfterWarrantyInterventionsForFieldEngineer = plannerRepository.findAllByUserUsername(customUser.getUsername())
+            Set<Planner> allAfterWarrantyInterventionsForFieldEngineer = getPlannersByUserUsername(customUser)
                     .stream()
                     .filter(o -> o.getServiceTicket().getTicketType().getName().equals("After Warranty"))
                     .collect(Collectors.toSet());
@@ -120,7 +120,7 @@ public class HomeController {
             }
             return getBigDecimal("Assemble", serviceTicketsSize);
         } else {
-            Set<Planner> allAssembleInterventionsForFieldEngineer = plannerRepository.findAllByUserUsername(customUser.getUsername())
+            Set<Planner> allAssembleInterventionsForFieldEngineer = getPlannersByUserUsername(customUser)
                     .stream()
                     .filter(o -> o.getServiceTicket().getTicketType().getName().equals("Assemble"))
                     .collect(Collectors.toSet());
@@ -146,12 +146,16 @@ public class HomeController {
         int warrantyServiceTicketsSize;
         float out;
         BigDecimal bigDecimal;
-        Set<Planner> allInterventionsForFieldEngineer = plannerRepository.findAllByUserUsername(customUser.getUsername());
+        Set<Planner> allInterventionsForFieldEngineer = getPlannersByUserUsername(customUser);
         serviceTicketsSize = allInterventionsForFieldEngineer.size();
         warrantyServiceTicketsSize = allKindOfInterventionsForFieldEngineer.size();
         out = (float) warrantyServiceTicketsSize / serviceTicketsSize * 100;
         bigDecimal = new BigDecimal(Float.toString(out));
         return bigDecimal.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private Set<Planner> getPlannersByUserUsername(@AuthenticationPrincipal UserDetails customUser) {
+        return plannerService.findPlannersByUserUsername(customUser.getUsername());
     }
 
 

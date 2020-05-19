@@ -8,26 +8,23 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.country.Country;
-import pl.maciejowczarczyk.servicemanagement.country.CountryRepository;
+import pl.maciejowczarczyk.servicemanagement.country.CountryServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.machine.Machine;
-import pl.maciejowczarczyk.servicemanagement.machine.MachineRepository;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/producer")
 @RequiredArgsConstructor
 public class ProducerController {
 
-    private final ProducerRepository producerRepository;
-    private final CountryRepository countryRepository;
-    private final MachineRepository machineRepository;
+    private final ProducerServiceImpl producerService;
+    private final CountryServiceImpl countryService;
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        List<Producer> producers = producerRepository.findAll();
+        List<Producer> producers = producerService.findAllProducers();
         model.addAttribute("producers", producers);
         return "producer/showAllProducers";
     }
@@ -43,20 +40,20 @@ public class ProducerController {
         if (result.hasErrors()) {
             return "producer/addProducer";
         }
-        List<Producer> producers = producerRepository.findAll();
+        List<Producer> producers = producerService.findAllProducers();
         boolean check = producers.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(producer.getName().toLowerCase()));
         if (check) {
             model.addAttribute("producerFail", true);
             model.addAttribute("producer", producer);
             return "producer/addProducer";
         }
-        producerRepository.save(producer);
+        producerService.saveProducer(producer);
         return "redirect:showAll";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        Optional<Producer> producer = producerRepository.findById(id);
+        Producer producer = producerService.findProducerById(id);
         model.addAttribute("producer", producer);
         return "producer/addProducer";
     }
@@ -66,28 +63,28 @@ public class ProducerController {
         if (result.hasErrors()) {
             return "producer/addProducer";
         }
-        producerRepository.save(producer);
+        producerService.saveProducer(producer);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        Producer producer = producerRepository.findAllById(id);
+        Producer producer = producerService.findProducerById(id);
         List<Machine> machines = producer.getMachines();
         boolean check = machines.stream().map(Machine::getProducer).anyMatch(o -> o.equals(producer));
 
         if (check) {
             model.addAttribute("failedProducer", true);
-            model.addAttribute("producers", producerRepository.findAll());
+            model.addAttribute("producers", producerService.findAllProducers());
             return "producer/showAllProducers";
         }
-        producerRepository.delete(producer);
+        producerService.deleteProducer(producer);
         return "redirect:../showAll";
     }
 
     @ModelAttribute("countries")
     public List<Country> fetchAllCountries() {
-        return countryRepository.findAll();
+        return countryService.findAllCountries();
     }
 
     @ModelAttribute("userDetails")

@@ -20,18 +20,15 @@ import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.maciejowczarczyk.servicemanagement.activity.Activity;
-import pl.maciejowczarczyk.servicemanagement.activity.ActivityRepository;
 import pl.maciejowczarczyk.servicemanagement.activity.ActivityServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.company.Company;
-import pl.maciejowczarczyk.servicemanagement.company.CompanyRepository;
-import pl.maciejowczarczyk.servicemanagement.company.CompanyService;
 import pl.maciejowczarczyk.servicemanagement.company.CompanyServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.files.DBFile;
 import pl.maciejowczarczyk.servicemanagement.files.DBFileStorageService;
 import pl.maciejowczarczyk.servicemanagement.machine.Machine;
-import pl.maciejowczarczyk.servicemanagement.machine.MachineRepository;
+import pl.maciejowczarczyk.servicemanagement.machine.MachineServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
-import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
+import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatus;
 import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatusRepository;
 import pl.maciejowczarczyk.servicemanagement.ticketType.TicketType;
@@ -61,11 +58,11 @@ public class ServiceTicketController {
     private final ServiceTicketRepository serviceTicketRepository;
     private final CompanyServiceImpl companyService;
     private final TicketTypeRepository ticketTypeRepository;
-    private final MachineRepository machineRepository;
+    private final MachineServiceImpl machineService;
     private final UserRepository userRepository;
     private final TicketStatusRepository ticketStatusRepository;
     private final DBFileStorageService dbFileStorageService;
-    private final PlannerRepository plannerRepository;
+    private final PlannerServiceImpl plannerService;
     private final ActivityServiceImpl activityService;
     private final UserDetailsService userDetailsService;
 
@@ -161,7 +158,7 @@ public class ServiceTicketController {
             serviceTickets = serviceTicketRepository.findAllByTicketStatusName("Open");
             model.addAttribute("serviceTickets", serviceTickets);
         } else {
-            List<Planner> plannerList = plannerRepository.findAll();
+            List<Planner> plannerList = plannerService.findAllPlanners();
             for (Planner planner : plannerList) {
                 if (planner.getUser().getUsername().equals(customUser.getUsername())) {
                     serviceTickets.add(planner.getServiceTicket());
@@ -195,7 +192,7 @@ public class ServiceTicketController {
     public String edit(@PathVariable Long id, Model model) {
         ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
         model.addAttribute("serviceTicket", serviceTicket);
-        model.addAttribute("machines", machineRepository.findAllByCompany(serviceTicket.getCompany()));
+        model.addAttribute("machines", findMachines(serviceTicket));
         Company company = companyService.findCompanyByServiceTicket(serviceTicket);
         model.addAttribute("company", company);
         return "serviceTicket/editServiceTicket";
@@ -227,7 +224,7 @@ public class ServiceTicketController {
     public String serviceTicketDetails(@AuthenticationPrincipal UserDetails customerUser, @PathVariable Long id, Model model, HttpSession session) {
         ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
         List<Activity> activities;
-        Set<Planner> planners = plannerRepository.findAllByServiceTicket(serviceTicket)
+        Set<Planner> planners = plannerService.findPlannersByServiceTicket(serviceTicket)
                 .stream()
                 .filter(o -> o.getUser().getUsername().equals(customerUser.getUsername()))
                 .collect(Collectors.toSet());
@@ -385,7 +382,7 @@ public class ServiceTicketController {
     }
 
     private List<Machine> findMachines(ServiceTicket serviceTicket) {
-        return machineRepository.findAllByCompany(serviceTicket.getCompany());
+        return machineService.findAllMachinesByCompany(serviceTicket.getCompany());
     }
 
 
