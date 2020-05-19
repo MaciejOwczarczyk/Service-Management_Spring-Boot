@@ -6,20 +6,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import pl.maciejowczarczyk.servicemanagement.files.DBFileRepository;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
-import pl.maciejowczarczyk.servicemanagement.planner.PlannerRepository;
+import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
-import pl.maciejowczarczyk.servicemanagement.user.CurrentUser;
-import pl.maciejowczarczyk.servicemanagement.user.User;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
-import java.util.Currency;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/activity")
@@ -28,14 +23,13 @@ public class ActivityController {
 
     private final ServiceTicketRepository serviceTicketRepository;
     private final ActivityServiceImpl activityService;
-    private final PlannerRepository plannerRepository;
+    private final PlannerServiceImpl plannerService;
     private final UserRepository userRepository;
-
 
     @GetMapping("/add/{plannerId}")
     public String add(@PathVariable Long plannerId, Model model) {
         model.addAttribute("activity", new Activity());
-        model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+        model.addAttribute("planner", plannerService.findPlannerById(plannerId));
         return "activity/addActivity";
     }
 
@@ -45,10 +39,8 @@ public class ActivityController {
                       Model model) {
         try {
 
-            ServiceTicket serviceTicket = serviceTicketRepository
-                    .findAllByPlanners(plannerRepository
-                            .findAllById(plannerId));
-            Planner planner = plannerRepository.findAllById(plannerId);
+            ServiceTicket serviceTicket = serviceTicketRepository.findAllByPlanners(plannerService.findPlannerById(plannerId));
+            Planner planner = plannerService.findPlannerById(plannerId);
             String parseStart = planner.getStart().substring(0, 10);
             String parseEnd = planner.getEnd().substring(0, 10);
             LocalDate parseStartToLocalDate = LocalDate.parse(parseStart);
@@ -64,31 +56,31 @@ public class ActivityController {
 
             if (parseDate.isBefore(parseStartToLocalDate) || parseDate.isAfter(parseEndToLocalDate)) {
                 model.addAttribute("wrongDate", true);
-                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+                model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else if (parseArriveOnSite.isBefore(parseStartFromBase)) {
                 model.addAttribute("arriveOnSiteBeforeStart", true);
-                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+                model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else if (parseStartWorkOnSite.isBefore(parseArriveOnSite)) {
                 model.addAttribute("startWorkBeforeArrival", true);
-                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+                model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else if (parseFinishWorkOnSite.isBefore(parseStartWorkOnSite)) {
                 model.addAttribute("finishWorkOnSiteBeforeStartWork", true);
-                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+                model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else if (parseStartDriveFromSite.isBefore(parseFinishWorkOnSite)) {
                 model.addAttribute("startDriveFromSiteBeforeFinishWork", true);
-                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+                model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else if (parseArriveToBase.isBefore(parseStartDriveFromSite)) {
                 model.addAttribute("arriveToBaseBeforeStartFromSite", true);
-                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+                model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else if ("".equals(activity.getDescription())) {
                 model.addAttribute("descriptionFail", true);
-                model.addAttribute("planner", plannerRepository.findAllById(plannerId));
+                model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else {
                 activity.setUser(userRepository.findByUsername(customUser.getUsername()));
@@ -111,7 +103,7 @@ public class ActivityController {
         Activity activity = activityService.findById(id);
         model.addAttribute("activity", activity);
         model.addAttribute("plannerId", activity.getPlanner().getId());
-        model.addAttribute("planner", plannerRepository.findAllById(id));
+        model.addAttribute("planner", plannerService.findPlannerById(id));
         return "activity/addActivity";
     }
 
@@ -121,7 +113,7 @@ public class ActivityController {
                                @RequestParam Long plannerId, Model model) {
         try {
 
-            Planner planner = plannerRepository.findAllById(plannerId);
+            Planner planner = plannerService.findPlannerById(plannerId);
             String parseStart = planner.getStart().substring(0, 10);
             String parseEnd = planner.getEnd().substring(0, 10);
             LocalDate parseStartToLocalDate = LocalDate.parse(parseStart);

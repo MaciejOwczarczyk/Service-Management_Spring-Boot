@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProvinceController {
 
-    private final ProvinceRepository provinceRepository;
+    private final ProvinceServiceImpl provinceService;
     private final CompanyServiceImpl companyService;
 
     @GetMapping("/add")
@@ -34,61 +34,61 @@ public class ProvinceController {
         if (result.hasErrors()) {
             return "province/addProvince";
         }
-        List<Province> provinces = provinceRepository.findAll();
+        List<Province> provinces = provinceService.findAllProvinces();
         boolean check = provinces.stream().map(o -> o.getName().toLowerCase())
                 .anyMatch(o -> o.equals(province.getName().toLowerCase()));
         if (check) {
             model.addAttribute("provinceFailed", true);
             return "province/addProvince";
         }
-        provinceRepository.save(province);
+        provinceService.saveProvince(province);
         return "redirect:showAll";
     }
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        model.addAttribute("provinces", provinceRepository.findAll());
+        model.addAttribute("provinces", provinceService.findAllProvinces());
         return "province/showAllProvinces";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        model.addAttribute("province", provinceRepository.findAllById(id));
+        model.addAttribute("province", provinceService.findProvinceById(id));
         return "province/addProvince";
     }
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute @Valid Province province, BindingResult result, Model model, @RequestParam String oldName) {
         if (province.getName().equals(oldName)) {
-            provinceRepository.save(province);
+            provinceService.saveProvince(province);
             return "redirect:../showAll";
         } else if (result.hasErrors()) {
-            model.addAttribute("province", provinceRepository.findAllById(province.getId()));
+            model.addAttribute("province", provinceService.findProvinceById(province.getId()));
             return "province/addProvince";
         }
 
-        List<Province> provinces = provinceRepository.findAll();
+        List<Province> provinces = provinceService.findAllProvinces();
         boolean check = provinces.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(province.getName().toLowerCase()));
         if (check) {
             model.addAttribute("provinceFailed", true);
-            model.addAttribute("province", provinceRepository.findAllById(province.getId()));
+            model.addAttribute("province", provinceService.findProvinceById(province.getId()));
             return "province/addProvince";
         }
-        provinceRepository.save(province);
+        provinceService.saveProvince(province);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        Province province = provinceRepository.findAllById(id);
+        Province province = provinceService.findProvinceById(id);
         List<Company> companies = companyService.findAllCompanies();
         boolean check = companies.stream().map(o -> o.getProvince().getId()).anyMatch(o -> o.equals(province.getId()));
         if (check) {
             model.addAttribute("provinceFailed", true);
-            model.addAttribute("provinces", provinceRepository.findAll());
+            model.addAttribute("provinces", provinceService.findAllProvinces());
             return "province/showAllProvinces";
         }
-        provinceRepository.delete(province);
+        provinceService.deleteProvince(province);
         return "redirect:../showAll";
     }
 

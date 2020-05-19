@@ -10,13 +10,14 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import pl.maciejowczarczyk.servicemanagement.machine.Machine;
-import pl.maciejowczarczyk.servicemanagement.machine.MachineRepository;
+import pl.maciejowczarczyk.servicemanagement.machine.MachineServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.machineType.MachineType;
-import pl.maciejowczarczyk.servicemanagement.machineType.MachineTypeRepository;
+import pl.maciejowczarczyk.servicemanagement.machineType.MachineTypeServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.producer.Producer;
-import pl.maciejowczarczyk.servicemanagement.producer.ProducerRepository;
+import pl.maciejowczarczyk.servicemanagement.producer.ProducerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.province.Province;
 import pl.maciejowczarczyk.servicemanagement.province.ProvinceRepository;
+import pl.maciejowczarczyk.servicemanagement.province.ProvinceServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.salesman.Salesman;
 import pl.maciejowczarczyk.servicemanagement.salesman.SalesmanRepository;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
@@ -32,11 +33,11 @@ public class CompanyController {
 
     private final CompanyServiceImpl companyService;
     private final SalesmanRepository salesmanRepository;
-    private final ProvinceRepository provinceRepository;
-    private final MachineRepository machineRepository;
+    private final ProvinceServiceImpl provinceService;
+    private final MachineServiceImpl machineService;
     private final ServiceTicketRepository serviceTicketRepository;
-    private final ProducerRepository producerRepository;
-    private final MachineTypeRepository machineTypeRepository;
+    private final ProducerServiceImpl producerService;
+    private final MachineTypeServiceImpl machineTypeService;
 
     @GetMapping("/add")
     public String add(Model model) {
@@ -98,7 +99,7 @@ public class CompanyController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
         Company company = companyService.findCompanyById(id);
-        List<Machine> machines = machineRepository.findAll();
+        List<Machine> machines = machineService.findAllMachines();
         boolean check = machines.stream().
                 map(o -> o.getCompany().getId()).anyMatch(o -> o.equals(company.getId()));
 
@@ -113,7 +114,7 @@ public class CompanyController {
 
     @GetMapping("/showMachines/{id}")
     public String showMachines(@PathVariable Long id, Model model) {
-        List<Machine> machines = machineRepository.findAllByCompany(companyService.findCompanyById(id));
+        List<Machine> machines = machineService.findAllMachinesByCompany(companyService.findCompanyById(id));
         model.addAttribute("companyId", id);
         model.addAttribute("machines", machines);
         return "company/showMachines";
@@ -121,23 +122,23 @@ public class CompanyController {
 
     @GetMapping("/delete/machine/{id}/{companyId}")
     public String deleteMachine(@PathVariable Long id, @PathVariable Long companyId, Model model, RedirectAttributes redirectAttributes) {
-        Machine machine = machineRepository.findAllById(id);
+        Machine machine = machineService.findMachineById(id);
         List<ServiceTicket> serviceTickets = serviceTicketRepository.findAll();
         boolean check = serviceTickets.stream().
                 map(o -> o.getMachine().getId()).anyMatch(o -> o.equals(machine.getId()));
 
         if (check) {
-            model.addAttribute("machines", machineRepository.findAllByCompanyId(companyId));
+            model.addAttribute("machines", machineService.findAllByCompanyId(companyId));
             redirectAttributes.addFlashAttribute("failedMachine", true);
             return "redirect:../../../showMachines/" + companyId;
         }
-        machineRepository.delete(machine);
+        machineService.deleteMachine(machine);
         return "redirect:../../../showMachines/" + companyId;
     }
 
     @GetMapping("/edit/machine/{id}")
     public String editMachine(@PathVariable Long id, Model model) {
-        model.addAttribute("machine", machineRepository.findAllById(id));
+        model.addAttribute("machine", machineService.findMachineById(id));
         return "company/editMachine";
     }
 
@@ -145,11 +146,11 @@ public class CompanyController {
     public String editMachine(@PathVariable Long id, @ModelAttribute @Valid Machine machine, BindingResult result, Model model) {
 
         if (result.hasErrors()) {
-            model.addAttribute("machine", machineRepository.findAllById(id));
+            model.addAttribute("machine", machineService.findMachineById(id));
             return "company/editMachine";
         }
 
-        machineRepository.save(machine);
+        machineService.saveMachine(machine);
         return "redirect:../../showMachines/" + machine.getCompany().getId();
     }
 
@@ -169,7 +170,7 @@ public class CompanyController {
             return "company/addNewMachine";
         }
 
-        machineRepository.save(machine);
+        machineService.saveMachine(machine);
         return "redirect:../showMachines/" + companyId;
     }
 
@@ -180,7 +181,7 @@ public class CompanyController {
 
     @ModelAttribute("provinces")
     public List<Province> fetchAllProvinces() {
-        return provinceRepository.findAll();
+        return provinceService.findAllProvinces();
     }
 
     @ModelAttribute("userDetails")
@@ -195,12 +196,12 @@ public class CompanyController {
 
     @ModelAttribute("producers")
     public List<Producer> fetchAllProducers() {
-        return producerRepository.findAll();
+        return producerService.findAllProducers();
     }
 
     @ModelAttribute("machineTypes")
     public List<MachineType> fetchAllMachineType() {
-        return machineTypeRepository.findAll();
+        return machineTypeService.findAllMachineTypes();
     }
 
 }

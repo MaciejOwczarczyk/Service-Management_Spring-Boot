@@ -23,7 +23,7 @@ import java.util.List;
 public class PlannerController {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final PlannerRepository plannerRepository;
+    private final PlannerServiceImpl plannerService;
     private final ServiceTicketRepository serviceTicketRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -91,7 +91,7 @@ public class PlannerController {
 
         for (Planner planner : plannerList) {
             planner.setServiceTicket(serviceTicketRepository.findAllById(ticketId));
-            plannerRepository.save(planner);
+            plannerService.savePlanner(planner);
         }
 
         return "redirect:/serviceTicket/showAllOpen";

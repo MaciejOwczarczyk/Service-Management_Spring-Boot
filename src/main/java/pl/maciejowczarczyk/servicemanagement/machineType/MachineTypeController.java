@@ -18,12 +18,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MachineTypeController {
 
-    private final MachineTypeRepository machineTypeRepository;
+    private final MachineTypeServiceImpl machineTypeService;
     private final MachineRepository machineRepository;
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        model.addAttribute("machineTypes", machineTypeRepository.findAll());
+        model.addAttribute("machineTypes", machineTypeService.findAllMachineTypes());
         return "machineType/showAllMachineTypes";
     }
 
@@ -35,7 +35,7 @@ public class MachineTypeController {
 
     @PostMapping("/add")
     public String add(@ModelAttribute @Valid MachineType machineType, BindingResult result, Model model) {
-        List<MachineType> machineTypes = machineTypeRepository.findAll();
+        List<MachineType> machineTypes = machineTypeService.findAllMachineTypes();
         boolean check = machineTypes.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(machineType.getName().toLowerCase()));
         if (result.hasErrors()) {
             return "machineType/addMachineType";
@@ -45,49 +45,49 @@ public class MachineTypeController {
             model.addAttribute("machineType", machineType);
             return "machineType/addMachineType";
         }
-        machineTypeRepository.save(machineType);
+        machineTypeService.saveMachineType(machineType);
         return "redirect:showAll";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        model.addAttribute("machineType", machineTypeRepository.findAllById(id));
+        model.addAttribute("machineType", machineTypeService.findMachineTypeById(id));
         return "machineType/addMachineType";
     }
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute @Valid MachineType machineType, BindingResult result, Model model, @RequestParam String oldName) {
         if (machineType.getName().equals(oldName)) {
-            machineTypeRepository.save(machineType);
+            machineTypeService.saveMachineType(machineType);
             return "redirect:../showAll";
         } else if (result.hasErrors()) {
-            model.addAttribute("machineType", machineTypeRepository.findAllById(machineType.getId()));
+            model.addAttribute("machineType", machineTypeService.findMachineTypeById(id));
             return "machineType/addMachineType";
         }
 
-        List<MachineType> machineTypes = machineTypeRepository.findAll();
+        List<MachineType> machineTypes = machineTypeService.findAllMachineTypes();
         boolean check = machineTypes.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(machineType.getName().toLowerCase()));
         if (check) {
             model.addAttribute("machineTypeFail", true);
-            model.addAttribute("machineType", machineTypeRepository.findAllById(machineType.getId()));
+            model.addAttribute("machineType", machineTypeService.findMachineTypeById(id));
             return "machineType/addMachineType";
         }
-        machineTypeRepository.save(machineType);
+        machineTypeService.saveMachineType(machineType);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        MachineType machineType = machineTypeRepository.findAllById(id);
+        MachineType machineType = machineTypeService.findMachineTypeById(id);
         List<Machine> machines = machineRepository.findAll();
         boolean check = machines.stream().
                 map(o -> o.getMachineType().getId()).anyMatch(o -> o.equals(machineType.getId()));
         if (check) {
             model.addAttribute("failMachineType", true);
-            model.addAttribute("machineTypes", machineTypeRepository.findAll());
+            model.addAttribute("machineTypes", machineTypeService.findAllMachineTypes());
             return "machineType/showAllMachineTypes";
         }
-        machineTypeRepository.delete(machineType);
+        machineTypeService.deleteMachineType(machineType);
         return "redirect:../showAll";
     }
 
