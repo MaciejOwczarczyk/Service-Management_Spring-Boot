@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.Currency;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/activity")
@@ -26,7 +27,7 @@ import java.util.Currency;
 public class ActivityController {
 
     private final ServiceTicketRepository serviceTicketRepository;
-    private final ActivityRepository activityRepository;
+    private final ActivityServiceImpl activityService;
     private final PlannerRepository plannerRepository;
     private final UserRepository userRepository;
 
@@ -44,7 +45,9 @@ public class ActivityController {
                       Model model) {
         try {
 
-            ServiceTicket serviceTicket = serviceTicketRepository.findAllByPlanners(plannerRepository.findAllById(plannerId));
+            ServiceTicket serviceTicket = serviceTicketRepository
+                    .findAllByPlanners(plannerRepository
+                            .findAllById(plannerId));
             Planner planner = plannerRepository.findAllById(plannerId);
             String parseStart = planner.getStart().substring(0, 10);
             String parseEnd = planner.getEnd().substring(0, 10);
@@ -88,10 +91,10 @@ public class ActivityController {
                 model.addAttribute("planner", plannerRepository.findAllById(plannerId));
                 return "activity/addActivity";
             } else {
-                activity.setUser(userRepository.findAllByUsername(customUser.getUsername()));
+                activity.setUser(userRepository.findByUsername(customUser.getUsername()));
                 activity.setServiceTicket(serviceTicket);
                 activity.setPlanner(planner);
-                activityRepository.save(activity);
+                activityService.saveActivity(activity);
                 return "redirect:../../serviceTicket/details/" + serviceTicket.getId();
             }
 
@@ -105,7 +108,7 @@ public class ActivityController {
 
     @GetMapping("/edit/{id}")
     public String editActivity(@PathVariable Long id, Model model) {
-        Activity activity = activityRepository.findAllById(id);
+        Activity activity = activityService.findById(id);
         model.addAttribute("activity", activity);
         model.addAttribute("plannerId", activity.getPlanner().getId());
         model.addAttribute("planner", plannerRepository.findAllById(id));
@@ -169,9 +172,9 @@ public class ActivityController {
                 return "activity/addActivity";
             } else {
                 activity.setPlanner(planner);
-                activity.setServiceTicket(activityRepository.findAllById(activity.getId()).getServiceTicket());
-                activity.setUser(userRepository.findAllByUsername(customUser.getUsername()));
-                activityRepository.save(activity);
+                activity.setServiceTicket(activityService.findById(activity.getId()).getServiceTicket());
+                activity.setUser(userRepository.findByUsername(customUser.getUsername()));
+                activityService.saveActivity(activity);
                 return "redirect:../../serviceTicket/details/" + activity.getServiceTicket().getId();
             }
 
@@ -184,9 +187,9 @@ public class ActivityController {
 
     @GetMapping("/delete/{id}")
     public String editActivity(@PathVariable Long id) {
-        Activity activity = activityRepository.findAllById(id);
+        Activity activity = activityService.findById(id);
         Long serviceTicketId = activity.getServiceTicket().getId();
-        activityRepository.delete(activity);
+        activityService.deleteActivity(activity);
         return "redirect:../../serviceTicket/details/" + serviceTicketId;
     }
 

@@ -1,15 +1,16 @@
 package pl.maciejowczarczyk.servicemanagement.activity;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 
-import java.time.LocalDate;
 import java.util.List;
 
-public interface ActivityRepository extends JpaRepository<Activity, Long> {
+public interface ActivityService {
 
     List<Activity> findAllByServiceTicket(ServiceTicket serviceTicket);
     List<Activity> findAllByServiceTicketAndUser(ServiceTicket serviceTicket, User user);
-    Activity findAllById(Long id);
+    Activity findById(Long id);
+    void saveActivity(Activity activity);
+    void deleteActivity(Activity activity);
+
 }

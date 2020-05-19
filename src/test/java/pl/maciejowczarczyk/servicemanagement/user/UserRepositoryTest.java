@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
@@ -22,12 +23,12 @@ import static org.junit.Assert.*;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserRepositoryTest {
 
+    @Autowired
+    private TestEntityManager entityManager;
+
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
 
     @Test
     public void findByUsername() {
@@ -37,9 +38,10 @@ public class UserRepositoryTest {
         user.setLastName("maciej");
         user.setUsername("maciek122@vp.pl");
         user.setPassword("sasa");
-        userRepository.save(user);
+        entityManager.persist(user);
+        entityManager.flush();
 
-        User found = userRepository.findAllByUsername(user.getUsername());
+        User found = userRepository.findByUsername(user.getUsername());
         assertThat(user.getUsername()).isEqualTo(found.getUsername());
 
     }
@@ -74,10 +76,6 @@ public class UserRepositoryTest {
         List<User> found = userRepository.findAllByRoles(role);
 
         assertThat(userList.size()).isEqualTo(found.size());
-    }
-
-    @Test
-    public void findAllByUsername() {
     }
 
     @Test

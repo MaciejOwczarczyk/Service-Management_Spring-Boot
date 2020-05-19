@@ -30,7 +30,7 @@ import java.util.List;
 @RequestMapping("/company")
 public class CompanyController {
 
-    private final CompanyRepository companyRepository;
+    private final CompanyServiceImpl companyService;
     private final SalesmanRepository salesmanRepository;
     private final ProvinceRepository provinceRepository;
     private final MachineRepository machineRepository;
@@ -46,10 +46,11 @@ public class CompanyController {
 
     @PostMapping("/add")
     public String add(@ModelAttribute @Validated({CompanyValidationGroup.class}) Company company, BindingResult result, Model model) {
-        List<Company> companies = companyRepository.findAll();
+        List<Company> companies = companyService.findAllCompanies();
         boolean checkName = companies.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(company.getName().toLowerCase()));
         boolean checkEmail = companies.stream().map(o -> o.getEmail().toLowerCase()).anyMatch(o -> o.equals(company.getEmail().toLowerCase()));
         boolean checkNIP = companies.stream().map(Company::getNip).anyMatch(o -> o.equals(company.getNip()));
+
         if (checkName) {
             model.addAttribute("addNameFail", true);
             return "company/addCompany";
@@ -64,20 +65,20 @@ public class CompanyController {
         } else if (result.hasErrors()) {
             return "company/addCompany";
         }
-        companyRepository.save(company);
+        companyService.saveCompany(company);
         return "redirect:showAll";
     }
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        List<Company> companies = companyRepository.findAll();
+        List<Company> companies = companyService.findAllCompanies();
         model.addAttribute("companies", companies);
         return "company/showAllCompanies";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        Company company = companyRepository.findAllById(id);
+        Company company = companyService.findCompanyById(id);
         model.addAttribute("company", company);
         return "company/addCompany";
     }
@@ -90,29 +91,29 @@ public class CompanyController {
         if (result.hasErrors()) {
             return "company/addCompany";
         }
-        companyRepository.save(company);
+        companyService.saveCompany(company);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        Company company = companyRepository.findAllById(id);
+        Company company = companyService.findCompanyById(id);
         List<Machine> machines = machineRepository.findAll();
         boolean check = machines.stream().
                 map(o -> o.getCompany().getId()).anyMatch(o -> o.equals(company.getId()));
 
         if (check) {
             model.addAttribute("failedCompany", true);
-            model.addAttribute("companies", companyRepository.findAll());
+            model.addAttribute("companies", companyService.findAllCompanies());
             return "company/showAllCompanies";
         }
-        companyRepository.delete(company);
+        companyService.deleteCompany(company);
         return "redirect:../showAll";
     }
 
     @GetMapping("/showMachines/{id}")
     public String showMachines(@PathVariable Long id, Model model) {
-        List<Machine> machines = machineRepository.findAllByCompany(companyRepository.findAllById(id));
+        List<Machine> machines = machineRepository.findAllByCompany(companyService.findCompanyById(id));
         model.addAttribute("companyId", id);
         model.addAttribute("machines", machines);
         return "company/showMachines";
@@ -161,7 +162,7 @@ public class CompanyController {
 
     @PostMapping("/addNewMachine/{id}")
     public String addMachineToClient(@RequestParam Long companyId, @ModelAttribute @Valid Machine machine, BindingResult result, Model model) {
-        machine.setCompany(companyRepository.findAllById(companyId));
+        machine.setCompany(companyService.findCompanyById(companyId));
         if(result.hasErrors()) {
             model.addAttribute("companyId", companyId);
             model.addAttribute("machine", new Machine());
@@ -189,7 +190,7 @@ public class CompanyController {
 
     @ModelAttribute("companies")
     public List<Company> fetchAllCompanies() {
-        return companyRepository.findAll();
+        return companyService.findAllCompanies();
     }
 
     @ModelAttribute("producers")
