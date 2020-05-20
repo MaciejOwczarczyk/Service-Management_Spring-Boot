@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
-import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.user.CurrentUser;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,15 +23,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HomeController {
 
-    private final ServiceTicketRepository serviceTicketRepository;
-    private final UserRepository userRepository;
+    private final ServiceTicketServiceImpl serviceTicketService;
     private final PlannerServiceImpl plannerService;
 
     @GetMapping("/")
     public String home(@AuthenticationPrincipal UserDetails customUser, Model model) {
         boolean checkOpenTickets = customUser.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
         if (checkOpenTickets) {
-            model.addAttribute("openTickets", serviceTicketRepository.findAllByTicketStatusName("Open").size());
+            model.addAttribute("openTickets", serviceTicketService.findAllServiceTicketsByTicketStatusName("Open").size());
         } else {
             Set<Planner> plannerList = getPlannersByUserUsername(customUser);
             Set<ServiceTicket> serviceTickets = plannerList.stream().map(Planner::getServiceTicket).collect(Collectors.toSet());
@@ -42,7 +40,7 @@ public class HomeController {
 
         boolean checkAllTickets = customUser.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
         if (checkAllTickets) {
-            model.addAttribute("allTickets", serviceTicketRepository.findAll().size());
+            model.addAttribute("allTickets", serviceTicketService.findAllServiceTickets().size());
         } else {
             Set<Planner> planners = getPlannersByUserUsername(customUser);
             Set<ServiceTicket> serviceTicketSet = planners.stream().map(Planner::getServiceTicket).collect(Collectors.toSet());
@@ -68,7 +66,7 @@ public class HomeController {
                 .stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
 
         if (check) {
-            int serviceTicketsSize = serviceTicketRepository.findAll().size();
+            int serviceTicketsSize = serviceTicketService.findAllServiceTickets().size();
             if (serviceTicketsSize == 0) {
                 return null;
             }
@@ -91,7 +89,7 @@ public class HomeController {
                 .stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
 
         if (check) {
-            int serviceTicketsSize = serviceTicketRepository.findAll().size();
+            int serviceTicketsSize = serviceTicketService.findAllServiceTickets().size();
             if (serviceTicketsSize == 0) {
                 return null;
             }
@@ -114,7 +112,7 @@ public class HomeController {
                 .stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
 
         if (check) {
-            int serviceTicketsSize = serviceTicketRepository.findAll().size();
+            int serviceTicketsSize = serviceTicketService.findAllServiceTickets().size();
             if (serviceTicketsSize == 0) {
                 return null;
             }
@@ -135,7 +133,7 @@ public class HomeController {
         int typeOfServiceTicketsSize;
         float out;
         BigDecimal bigDecimal;
-        typeOfServiceTicketsSize = serviceTicketRepository.findAllByTicketTypeName(typeOfTicket).size();
+        typeOfServiceTicketsSize = serviceTicketService.findAllServiceTicketsByTicketTypeName(typeOfTicket).size();
         out = (float) typeOfServiceTicketsSize / serviceTicketsSize * 100;
         bigDecimal = new BigDecimal(Float.toString(out));
         return bigDecimal.setScale(2, RoundingMode.HALF_UP);

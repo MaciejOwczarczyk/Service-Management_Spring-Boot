@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
-import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.time.LocalDate;
@@ -21,7 +21,7 @@ import java.time.format.DateTimeParseException;
 @RequiredArgsConstructor
 public class ActivityController {
 
-    private final ServiceTicketRepository serviceTicketRepository;
+    private final ServiceTicketServiceImpl serviceTicketService;
     private final ActivityServiceImpl activityService;
     private final PlannerServiceImpl plannerService;
     private final UserRepository userRepository;
@@ -39,7 +39,7 @@ public class ActivityController {
                       Model model) {
         try {
 
-            ServiceTicket serviceTicket = serviceTicketRepository.findAllByPlanners(plannerService.findPlannerById(plannerId));
+            ServiceTicket serviceTicket = serviceTicketService.findServiceTicketByPlanner(plannerService.findPlannerById(plannerId));
             Planner planner = plannerService.findPlannerById(plannerId);
             String parseStart = planner.getStart().substring(0, 10);
             String parseEnd = planner.getEnd().substring(0, 10);

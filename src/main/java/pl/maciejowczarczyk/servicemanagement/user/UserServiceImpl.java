@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
-import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
+import pl.maciejowczarczyk.servicemanagement.role.RoleServiceImpl;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,19 +13,13 @@ import java.util.HashSet;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleServiceImpl roleService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           RoleRepository roleRepository,
-                           BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
 
     @Override
     public User findByUserName(String name) {
@@ -38,7 +32,7 @@ public class UserServiceImpl implements UserService {
         user.setEnabled(true);
 
         if (user.getRoles().size() == 0) {
-            Role userRole = roleRepository.findByName("ROLE_ADMIN");
+            Role userRole = roleService.findRoleByName("ROLE_ADMIN");
             user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
         }
         userRepository.save(user);

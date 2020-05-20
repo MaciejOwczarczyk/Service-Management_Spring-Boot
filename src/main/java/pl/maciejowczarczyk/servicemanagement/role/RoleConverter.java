@@ -6,11 +6,11 @@ import org.springframework.core.convert.converter.Converter;
 public class RoleConverter implements Converter<String, Role> {
 
     @Autowired
-    private RoleRepository roleRepository;
+    private RoleServiceImpl roleService;
 
     @Override
     public Role convert(String s) {
         Long id = Long.parseLong(s);
-        return roleRepository.findAllById(id);
+        return roleService.findRoleById(id);
     }
 }

@@ -3,7 +3,7 @@ package pl.maciejowczarczyk.servicemanagement.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
+import pl.maciejowczarczyk.servicemanagement.role.RoleServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +13,11 @@ import java.util.List;
 public class UserRestController {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleServiceImpl roleService;
 
     @GetMapping("/techniciansList/get")
     public List<DTOUser> users() {
-        List<User> users = userRepository.findAllByRoles(roleRepository.findByName("ROLE_ENGINEER"));
+        List<User> users = userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
         List<DTOUser> DtoUsers = new ArrayList<>();
 
         for (User user : users) {

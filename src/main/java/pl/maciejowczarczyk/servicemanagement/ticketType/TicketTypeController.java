@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
-import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
 public class TicketTypeController {
 
     private final TicketTypeRepository ticketTypeRepository;
-    private final ServiceTicketRepository serviceTicketRepository;
+    private final ServiceTicketServiceImpl serviceTicketService;
 
     @GetMapping("/add")
     public String add(Model model) {
@@ -81,7 +81,7 @@ public class TicketTypeController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
         TicketType ticketType = ticketTypeRepository.findAllById(id);
-        List<ServiceTicket> serviceTickets = serviceTicketRepository.findAllByTicketType(ticketType);
+        List<ServiceTicket> serviceTickets = serviceTicketService.findAllServiceTicketsByTicketType(ticketType);
 
         if (serviceTickets.size() > 0) {
             model.addAttribute("failedTicketType", true);

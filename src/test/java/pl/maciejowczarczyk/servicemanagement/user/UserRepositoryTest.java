@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
-import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
 
 import java.util.*;
 

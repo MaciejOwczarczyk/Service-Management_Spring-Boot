@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SalesmanController {
 
-    private final SalesmanRepository salesmanRepository;
+    private final SalesmanServiceImpl salesmanService;
 
     @GetMapping("/add")
     public String add(Model model) {
@@ -30,19 +30,19 @@ public class SalesmanController {
         if (result.hasErrors()) {
             return "salesman/addSalesman";
         }
-        salesmanRepository.save(salesman);
+        salesmanService.saveSalesman(salesman);
         return "redirect:showAll";
     }
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        model.addAttribute("salesmen", salesmanRepository.findAll());
+        model.addAttribute("salesmen", salesmanService.findAllSalesmen());
         return "salesman/showAllSalesmen";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        model.addAttribute("salesman", salesmanRepository.findById(id));
+        model.addAttribute("salesman", salesmanService.findSalesmanById(id));
         return "salesman/addSalesman";
     }
 
@@ -51,23 +51,23 @@ public class SalesmanController {
         if (result.hasErrors()) {
             return "salesman/addSalesman";
         }
-        salesmanRepository.save(salesman);
+        salesmanService.saveSalesman(salesman);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        Salesman salesman = salesmanRepository.findAllById(id);
+        Salesman salesman = salesmanService.findSalesmanById(id);
         List<Company> companies = salesman.getCompanies();
         boolean check = companies.stream().
-                map(o -> o.getSalesman()).anyMatch(o -> o.equals(salesman));
+                map(Company::getSalesman).anyMatch(o -> o.equals(salesman));
         if (check) {
             model.addAttribute("salesmanFailed", true);
-            model.addAttribute("salesmen", salesmanRepository.findAll());
+            model.addAttribute("salesmen", salesmanService.findAllSalesmen());
             return "salesman/showAllSalesmen";
         }
 
-        salesmanRepository.deleteById(id);
+        salesmanService.deleteSalesman(salesman);
         return "redirect:../showAll";
     }
 

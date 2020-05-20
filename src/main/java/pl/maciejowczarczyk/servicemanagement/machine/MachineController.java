@@ -14,7 +14,7 @@ import pl.maciejowczarczyk.servicemanagement.machineType.MachineTypeServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.producer.Producer;
 import pl.maciejowczarczyk.servicemanagement.producer.ProducerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
-import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -28,7 +28,7 @@ public class MachineController {
     private final CompanyServiceImpl companyService;
     private final ProducerServiceImpl producerService;
     private final MachineTypeServiceImpl machineTypeService;
-    private final ServiceTicketRepository serviceTicketRepository;
+    private final ServiceTicketServiceImpl serviceTicketService;
 
 
     @GetMapping("/showAll")
@@ -73,7 +73,7 @@ public class MachineController {
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
         Machine machine = machineService.findMachineById(id);
-        List<ServiceTicket> serviceTickets = serviceTicketRepository.findAll();
+        List<ServiceTicket> serviceTickets = serviceTicketService.findAllServiceTickets();
         boolean check = serviceTickets.stream().
                 map(o -> o.getMachine().getId()).anyMatch(o -> o.equals(machine.getId()));
 

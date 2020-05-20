@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
-import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.role.RoleServiceImpl;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
@@ -24,9 +24,9 @@ public class PlannerController {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final PlannerServiceImpl plannerService;
-    private final ServiceTicketRepository serviceTicketRepository;
+    private final ServiceTicketServiceImpl serviceTicketService;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final RoleServiceImpl roleService;
 
     @GetMapping("/add/{id}")
     public String add(@PathVariable Long id, Model model) {
@@ -34,7 +34,7 @@ public class PlannerController {
 //        List<Technician> technicians = technicianRepository.findAll();
         List<Planner> planners = new ArrayList<>();
 
-        List<User> users = userRepository.findAllByRoles(roleRepository.findByName("ROLE_ENGINEER"));
+        List<User> users = userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
 
         for (User user : users) {
             planners.add(new Planner());
@@ -64,7 +64,7 @@ public class PlannerController {
 //                    List<Technician> technicians = technicianRepository.findAll();
                     List<Planner> plannerArrayList = new ArrayList<>();
 
-                    List<User> users = userRepository.findAllByRoles(roleRepository.findByName("ROLE_ENGINEER"));
+                    List<User> users = userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
 
                     for (User user : users) {
                         plannerArrayList.add(new Planner());
@@ -80,8 +80,13 @@ public class PlannerController {
                     model.addAttribute("plannerList", plannerModel1);
                     return "planner/addIntervention";
                 }
-                String newTestStart =  LocalDate.parse(planner.getStart(), formatter).atStartOfDay().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
-                String newTestEnd = LocalDate.parse(planner.getEnd(), formatter).atStartOfDay().plusHours(10).plusMinutes(59).plusSeconds(59).atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_DATE_TIME);
+                String newTestStart =  LocalDate.parse(planner.getStart(), formatter)
+                        .atStartOfDay().atOffset(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_DATE_TIME);
+                String newTestEnd = LocalDate.parse(planner.getEnd(), formatter)
+                        .atStartOfDay().plusHours(10).plusMinutes(59)
+                        .plusSeconds(59).atOffset(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_DATE_TIME);
                 planner.setStart(newTestStart);
                 planner.setEnd(newTestEnd);
 
@@ -90,7 +95,7 @@ public class PlannerController {
         }
 
         for (Planner planner : plannerList) {
-            planner.setServiceTicket(serviceTicketRepository.findAllById(ticketId));
+            planner.setServiceTicket(serviceTicketService.findServiceTicketById(ticketId));
             plannerService.savePlanner(planner);
         }
 
@@ -99,7 +104,7 @@ public class PlannerController {
 
     @ModelAttribute("technicians")
     public List<User> fetchAllUsers() {
-        return userRepository.findAllByRoles(roleRepository.findByName("ROLE_ENGINEER"));
+        return userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
     }
 
     @ModelAttribute("userDetails")
