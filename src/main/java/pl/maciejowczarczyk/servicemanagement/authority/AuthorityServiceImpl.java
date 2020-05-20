@@ -1,9 +1,11 @@
 package pl.maciejowczarczyk.servicemanagement.authority;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 @RequiredArgsConstructor
 public class AuthorityServiceImpl implements AuthorityService {
 
