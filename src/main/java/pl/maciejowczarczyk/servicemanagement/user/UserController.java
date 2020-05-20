@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.authority.Authority;
 import pl.maciejowczarczyk.servicemanagement.authority.AuthorityServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
-import pl.maciejowczarczyk.servicemanagement.role.RoleRepository;
+import pl.maciejowczarczyk.servicemanagement.role.RoleService;
+import pl.maciejowczarczyk.servicemanagement.role.RoleServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -22,7 +23,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final AuthorityServiceImpl authorityService;
-    private final RoleRepository roleRepository;
+    private final RoleServiceImpl roleService;
     private final UserServiceImpl userService;
 
     @GetMapping("/showAll")
@@ -89,7 +90,7 @@ public class UserController {
 
     @ModelAttribute("roles")
     public List<Role> roles() {
-        return roleRepository.findAll();
+        return roleService.findAllRoles();
     }
 
     @ModelAttribute("userDetails")

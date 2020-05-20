@@ -19,12 +19,12 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class RoleController {
 
-    private final RoleRepository roleRepository;
+    private final RoleServiceImpl roleService;
     private final UserRepository userRepository;
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        model.addAttribute("roles", roleRepository.findAll());
+        model.addAttribute("roles", roleService.findAllRoles());
         return "role/showAllRoles";
     }
 
@@ -39,7 +39,7 @@ public class RoleController {
         if (result.hasErrors()) {
             return "role/addRole";
         }
-        List<Role> roles = roleRepository.findAll();
+        List<Role> roles = roleService.findAllRoles();
         boolean check = roles.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(role.getName().toLowerCase()));
         if (check) {
             model.addAttribute("roleFail", true);
@@ -47,59 +47,59 @@ public class RoleController {
             return "role/addRole";
         }
 
-        roleRepository.save(role);
+        roleService.saveRole(role);
         return "redirect:showAll";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        Role role = roleRepository.findAllById(id);
+        Role role = roleService.findRoleById(id);
         Set<User> users = role.getUsers();
         boolean check = users.stream().
                 map(User::getRoles).anyMatch(o -> o.contains(role));
         if (check) {
             model.addAttribute("roleFail", true);
-            model.addAttribute("roles", roleRepository.findAll());
+            model.addAttribute("roles", roleService.findAllRoles());
             return "role/showAllRoles";
         }
-        model.addAttribute("role", roleRepository.findAllById(id));
+        model.addAttribute("role", roleService.findRoleById(id));
         return "role/addRole";
     }
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute @Valid Role role, BindingResult result, Model model, @RequestParam String oldName) {
         if (role.getName().equals(oldName)) {
-            roleRepository.save(role);
+            roleService.saveRole(role);
             return "redirect:../showAll";
         } else if (result.hasErrors()) {
-            model.addAttribute("role", roleRepository.findAllById(role.getId()));
+            model.addAttribute("role", roleService.findRoleById(role.getId()));
             return "role/addRole";
         }
-        List<Role> roles = roleRepository.findAll();
+        List<Role> roles = roleService.findAllRoles();
         boolean check = roles.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(role.getName().toLowerCase()));
         if (check) {
-            model.addAttribute("role", roleRepository.findAllById(role.getId()));
+            model.addAttribute("role", roleService.findRoleById(role.getId()));
             model.addAttribute("roleFail", true);
             return "role/addRole";
         }
 
-        roleRepository.save(role);
+        roleService.saveRole(role);
         return "redirect:../showAll";
 
     }
 
         @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        Role role = roleRepository.findAllById(id);
+        Role role = roleService.findRoleById(id);
         Set<User> users = role.getUsers();
         boolean check = users.stream().
                 map(User::getRoles).anyMatch(o -> o.contains(role));
         if (check) {
             model.addAttribute("roleFail", true);
-            model.addAttribute("roles", roleRepository.findAll());
+            model.addAttribute("roles", roleService.findAllRoles());
             return "role/showAllRoles";
         }
-        roleRepository.delete(role);
+        roleService.deleteRole(role);
         return "redirect:../showAll";
     }
 

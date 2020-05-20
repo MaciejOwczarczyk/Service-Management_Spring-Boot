@@ -16,12 +16,11 @@ import pl.maciejowczarczyk.servicemanagement.machineType.MachineTypeServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.producer.Producer;
 import pl.maciejowczarczyk.servicemanagement.producer.ProducerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.province.Province;
-import pl.maciejowczarczyk.servicemanagement.province.ProvinceRepository;
 import pl.maciejowczarczyk.servicemanagement.province.ProvinceServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.salesman.Salesman;
 import pl.maciejowczarczyk.servicemanagement.salesman.SalesmanRepository;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
-import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -35,7 +34,7 @@ public class CompanyController {
     private final SalesmanRepository salesmanRepository;
     private final ProvinceServiceImpl provinceService;
     private final MachineServiceImpl machineService;
-    private final ServiceTicketRepository serviceTicketRepository;
+    private final ServiceTicketServiceImpl serviceTicketService;
     private final ProducerServiceImpl producerService;
     private final MachineTypeServiceImpl machineTypeService;
 
@@ -123,7 +122,7 @@ public class CompanyController {
     @GetMapping("/delete/machine/{id}/{companyId}")
     public String deleteMachine(@PathVariable Long id, @PathVariable Long companyId, Model model, RedirectAttributes redirectAttributes) {
         Machine machine = machineService.findMachineById(id);
-        List<ServiceTicket> serviceTickets = serviceTicketRepository.findAll();
+        List<ServiceTicket> serviceTickets = serviceTicketService.findAllServiceTickets();
         boolean check = serviceTickets.stream().
                 map(o -> o.getMachine().getId()).anyMatch(o -> o.equals(machine.getId()));
 

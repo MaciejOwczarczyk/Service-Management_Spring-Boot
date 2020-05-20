@@ -30,7 +30,7 @@ import pl.maciejowczarczyk.servicemanagement.machine.MachineServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatus;
-import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatusRepository;
+import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatusServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.ticketType.TicketType;
 import pl.maciejowczarczyk.servicemanagement.ticketType.TicketTypeRepository;
 import pl.maciejowczarczyk.servicemanagement.user.User;
@@ -55,12 +55,12 @@ import java.util.stream.Collectors;
 public class ServiceTicketController {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private final ServiceTicketRepository serviceTicketRepository;
+    private final ServiceTicketServiceImpl serviceTicketService;
     private final CompanyServiceImpl companyService;
     private final TicketTypeRepository ticketTypeRepository;
     private final MachineServiceImpl machineService;
     private final UserRepository userRepository;
-    private final TicketStatusRepository ticketStatusRepository;
+    private final TicketStatusServiceImpl ticketStatusService;
     private final DBFileStorageService dbFileStorageService;
     private final PlannerServiceImpl plannerService;
     private final ActivityServiceImpl activityService;
@@ -93,7 +93,7 @@ public class ServiceTicketController {
 
         List<User> users = Collections.singletonList(userRepository.findByUsername(customUser.getUsername()));
         serviceTicket.setUsers(users);
-        serviceTicket.setTicketStatus(ticketStatusRepository.findAllByName("Open"));
+        serviceTicket.setTicketStatus(ticketStatusService.findTicketStatusByName("Open"));
         model.addAttribute("machines", findMachines(serviceTicket));
         model.addAttribute("serviceTicket", serviceTicket);
         return "serviceTicket/addTicketStep2";
@@ -112,7 +112,7 @@ public class ServiceTicketController {
             return "serviceTicket/addTicketStep2";
         } else {
             serviceTicket.setOpenDate(LocalDateTime.now().format(formatter));
-            serviceTicketRepository.save(serviceTicket);
+            serviceTicketService.saveServiceTicket(serviceTicket);
             model.addAttribute("serviceTicket", new ServiceTicket());
             return "redirect:showAllOpen";
         }
@@ -120,15 +120,15 @@ public class ServiceTicketController {
 
     @GetMapping("/toClose/{id}")
     public String toClose(@PathVariable Long id) {
-        ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
-        serviceTicket.setTicketStatus(ticketStatusRepository.findAllByName("To Close"));
-        serviceTicketRepository.save(serviceTicket);
+        ServiceTicket serviceTicket = serviceTicketService.findServiceTicketById(id);
+        serviceTicket.setTicketStatus(ticketStatusService.findTicketStatusByName("To Close"));
+        serviceTicketService.saveServiceTicket(serviceTicket);
         return "redirect:../showAllOpen";
     }
 
     @GetMapping("/close/{id}")
     public String close(@PathVariable Long id, Model model) {
-        ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
+        ServiceTicket serviceTicket = serviceTicketService.findServiceTicketById(id);
         model.addAttribute("serviceTicket", serviceTicket);
         model.addAttribute("company", serviceTicket.getCompany());
         return "serviceTicket/closeServiceTicket";
@@ -142,11 +142,11 @@ public class ServiceTicketController {
             return "serviceTicket/closeServiceTicket";
         }
 
-        ServiceTicket serviceTicket1 = serviceTicketRepository.findAllById(serviceTicket.getId());
+        ServiceTicket serviceTicket1 = serviceTicketService.findServiceTicketById(serviceTicket.getId());
         serviceTicket1.setSolution(serviceTicket.getSolution());
-        serviceTicket1.setTicketStatus(ticketStatusRepository.findAllByName("Closed"));
+        serviceTicket1.setTicketStatus(ticketStatusService.findTicketStatusByName("Closed"));
         serviceTicket1.setCloseDate(LocalDateTime.now().format(formatter));
-        serviceTicketRepository.save(serviceTicket1);
+        serviceTicketService.saveServiceTicket(serviceTicket1);
         return "redirect:../showAllOpen";
     }
 
@@ -155,7 +155,7 @@ public class ServiceTicketController {
         Set<ServiceTicket> serviceTickets = new HashSet<>();
         boolean check = customUser.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
         if (check) {
-            serviceTickets = serviceTicketRepository.findAllByTicketStatusName("Open");
+            serviceTickets = serviceTicketService.findAllServiceTicketsByTicketStatusName("Open");
             model.addAttribute("serviceTickets", serviceTickets);
         } else {
             List<Planner> plannerList = plannerService.findAllPlanners();
@@ -167,7 +167,7 @@ public class ServiceTicketController {
             List<ServiceTicket> tempServiceTicketList = serviceTickets.stream().filter(o -> o.getTicketStatus().getName().equals("Open")).collect(Collectors.toList());
             model.addAttribute("serviceTickets", tempServiceTicketList);
         }
-        Set<ServiceTicket> serviceTicketSet = serviceTicketRepository.findAllByTicketStatusName("To Close");
+        Set<ServiceTicket> serviceTicketSet = serviceTicketService.findAllServiceTicketsByTicketStatusName("To close");
         if (serviceTicketSet.size() != 0) {
             model.addAttribute("size", true);
         }
@@ -176,21 +176,21 @@ public class ServiceTicketController {
 
     @GetMapping("/showAllToClose")
     public String showAllToClose(Model model) {
-        Set<ServiceTicket> serviceTickets = serviceTicketRepository.findAllByTicketStatusName("To Close");
+        Set<ServiceTicket> serviceTickets = serviceTicketService.findAllServiceTicketsByTicketStatusName("To close");
         model.addAttribute("serviceTickets", serviceTickets);
         return "serviceTicket/showAllToCloseTicket";
     }
 
     @GetMapping("/showAllClosed")
     public String showAllClosed(Model model) {
-        Set<ServiceTicket> serviceTickets = serviceTicketRepository.findAllByTicketStatusName("Closed");
+        Set<ServiceTicket> serviceTickets = serviceTicketService.findAllServiceTicketsByTicketStatusName("Closed");
         model.addAttribute("serviceTickets", serviceTickets);
         return "serviceTicket/showAllClosedServiceTickets";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
+        ServiceTicket serviceTicket = serviceTicketService.findServiceTicketById(id);
         model.addAttribute("serviceTicket", serviceTicket);
         model.addAttribute("machines", findMachines(serviceTicket));
         Company company = companyService.findCompanyByServiceTicket(serviceTicket);
@@ -200,29 +200,29 @@ public class ServiceTicketController {
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute ServiceTicket serviceTicket) {
-        serviceTicketRepository.save(serviceTicket);
+        serviceTicketService.saveServiceTicket(serviceTicket);
         return "redirect:../details/" + id;
     }
 
     @GetMapping("/editClosed/{id}")
     public String editClosed(@PathVariable Long id, Model model) {
-        model.addAttribute("serviceTicket", serviceTicketRepository.findAllById(id));
+        model.addAttribute("serviceTicket", serviceTicketService.findServiceTicketById(id));
         return "serviceTicket/editClosedTicket";
     }
 
     @PostMapping("/editClosed/{id}")
     public String editClosed(@PathVariable Long id, @ModelAttribute ServiceTicket serviceTicket) {
-        ServiceTicket serviceTicket1 = serviceTicketRepository.findAllById(serviceTicket.getId());
+        ServiceTicket serviceTicket1 = serviceTicketService.findServiceTicketById(serviceTicket.getId());
         serviceTicket1.setTicketStatus(serviceTicket.getTicketStatus());
         serviceTicket1.setSolution(null);
-        serviceTicketRepository.save(serviceTicket1);
+        serviceTicketService.saveServiceTicket(serviceTicket1);
         return "redirect:../showAllClosed";
     }
 
 
     @GetMapping("/details/{id}")
     public String serviceTicketDetails(@AuthenticationPrincipal UserDetails customerUser, @PathVariable Long id, Model model, HttpSession session) {
-        ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
+        ServiceTicket serviceTicket = serviceTicketService.findServiceTicketById(id);
         List<Activity> activities;
         Set<Planner> planners = plannerService.findPlannersByServiceTicket(serviceTicket)
                 .stream()
@@ -308,7 +308,7 @@ public class ServiceTicketController {
 
     @PostMapping("/details/{id}")
     public String serviceTicketDetailsFileUpload(@AuthenticationPrincipal UserDetails customUser, @PathVariable Long id, @RequestParam("file") MultipartFile file) {
-        ServiceTicket serviceTicket = serviceTicketRepository.findAllById(id);
+        ServiceTicket serviceTicket = serviceTicketService.findServiceTicketById(id);
         User user = userRepository.findByUsername(customUser.getUsername());
         dbFileStorageService.storeFile(user, file, serviceTicket);
         return "redirect:../details/" + id;
@@ -373,7 +373,7 @@ public class ServiceTicketController {
 
     @ModelAttribute("ticketStatuses")
     public List<TicketStatus> fetchAllTicketStatuses() {
-        return ticketStatusRepository.findAll();
+        return ticketStatusService.findAllTicketStatuses();
     }
 
     @ModelAttribute("userDetails")

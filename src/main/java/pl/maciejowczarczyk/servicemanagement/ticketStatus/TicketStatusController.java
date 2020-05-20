@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
-import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketRepository;
+import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TicketStatusController {
 
-    private final TicketStatusRepository ticketStatusRepository;
-    private final ServiceTicketRepository serviceTicketRepository;
+    private final TicketStatusServiceImpl ticketStatusService;
+    private final ServiceTicketServiceImpl serviceTicketService;
 
     @GetMapping("/add")
     public String add(Model model) {
@@ -33,61 +33,61 @@ public class TicketStatusController {
             return "ticketStatus/addTicketStatus";
         }
 
-        List<TicketStatus> ticketStatuses = ticketStatusRepository.findAll();
+        List<TicketStatus> ticketStatuses = ticketStatusService.findAllTicketStatuses();
         boolean check = ticketStatuses.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(ticketStatus.getName().toLowerCase()));
         if (check) {
             model.addAttribute("ticketStatusFail", true);
             return "ticketStatus/addTicketStatus";
         }
-        ticketStatusRepository.save(ticketStatus);
+        ticketStatusService.saveTicketStatus(ticketStatus);
         return "redirect:showAll";
     }
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        List<TicketStatus> ticketStatuses = ticketStatusRepository.findAll();
+        List<TicketStatus> ticketStatuses = ticketStatusService.findAllTicketStatuses();
         model.addAttribute("ticketStatuses", ticketStatuses);
         return "ticketStatus/showAllTicketStatuses";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        model.addAttribute("ticketStatus", ticketStatusRepository.findAllById(id));
+        model.addAttribute("ticketStatus", ticketStatusService.findTicketStatusById(id));
         return "ticketStatus/addTicketStatus";
     }
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute @Valid TicketStatus ticketStatus, BindingResult result, Model model,  @RequestParam String oldName) {
         if (ticketStatus.getName().equals(oldName)) {
-            ticketStatusRepository.save(ticketStatus);
+            ticketStatusService.saveTicketStatus(ticketStatus);
             return "redirect:../showAll";
         } else if (result.hasErrors()) {
-            model.addAttribute("ticketStatus", ticketStatusRepository.findAllById(ticketStatus.getId()));
+            model.addAttribute("ticketStatus", ticketStatusService.findTicketStatusById(ticketStatus.getId()));
             return "ticketStatus/addTicketStatus";
         }
-        List<TicketStatus> ticketStatuses = ticketStatusRepository.findAll();
+        List<TicketStatus> ticketStatuses = ticketStatusService.findAllTicketStatuses();
         boolean check = ticketStatuses.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(ticketStatus.getName().toLowerCase()));
         if (check) {
             model.addAttribute("ticketStatusFail", true);
-            model.addAttribute("ticketStatus", ticketStatusRepository.findAllById(ticketStatus.getId()));
+            model.addAttribute("ticketStatus", ticketStatusService.findTicketStatusById(ticketStatus.getId()));
             return "ticketStatus/addTicketStatus";
         }
 
-        ticketStatusRepository.save(ticketStatus);
+        ticketStatusService.saveTicketStatus(ticketStatus);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        TicketStatus ticketStatus = ticketStatusRepository.findAllById(id);
-        List<ServiceTicket> serviceTickets = serviceTicketRepository.findAllByTicketStatus(ticketStatus);
+        TicketStatus ticketStatus = ticketStatusService.findTicketStatusById(id);
+        List<ServiceTicket> serviceTickets = serviceTicketService.findAllServiceTicketsByTicketStatus(ticketStatus);
 
         if (serviceTickets.size() > 0) {
-            model.addAttribute("ticketStatuses", ticketStatusRepository.findAll());
+            model.addAttribute("ticketStatuses", ticketStatusService.findAllTicketStatuses());
             model.addAttribute("ticketStatusFailed", true);
             return "ticketStatus/showAllTicketStatuses";
         }
-        ticketStatusRepository.delete(ticketStatus);
+        ticketStatusService.deleteTicketStatus(ticketStatus);
         return "redirect:../showAll";
     }
 
