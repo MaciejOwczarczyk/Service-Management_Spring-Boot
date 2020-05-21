@@ -1,6 +1,7 @@
 package pl.maciejowczarczyk.servicemanagement.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,10 +12,15 @@ import pl.maciejowczarczyk.servicemanagement.role.Role;
 import java.util.HashSet;
 import java.util.Set;
 
-@RequiredArgsConstructor
 public class SpringDataUserDetailsService implements UserDetailsService {
 
-    private final UserService userService;
+    private UserService userService;
+
+
+    @Autowired
+    public void setUserRepository(UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) {
