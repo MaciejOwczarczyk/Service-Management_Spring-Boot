@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TicketTypeController {
 
-    private final TicketTypeRepository ticketTypeRepository;
+    private final TicketTypeServiceImpl ticketTypeService;
     private final ServiceTicketServiceImpl serviceTicketService;
 
     @GetMapping("/add")
@@ -32,63 +32,62 @@ public class TicketTypeController {
         if (result.hasErrors()) {
             return "ticketType/addTicketType";
         }
-        List<TicketType> ticketTypes = ticketTypeRepository.findAll();
+        List<TicketType> ticketTypes = ticketTypeService.findAllTicketTypes();
         boolean check = ticketTypes.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(ticketType.getName().toLowerCase()));
         if (check) {
             model.addAttribute("ticketTypeFail", true);
             return "ticketType/addTicketType";
         }
-        ticketTypeRepository.save(ticketType);
+        ticketTypeService.saveTicketType(ticketType);
         return "redirect:showAll";
     }
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        model.addAttribute("ticketTypes", ticketTypeRepository.findAll());
+        model.addAttribute("ticketTypes", ticketTypeService.findAllTicketTypes());
         return "ticketType/showAllTicketTypes";
     }
 
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        model.addAttribute("ticketType", ticketTypeRepository.findAllById(id));
+        model.addAttribute("ticketType", ticketTypeService.findTicketTypeById(id));
         return "ticketType/addTicketType";
     }
 
     @PostMapping("/edit/{id}")
     public String edit(@PathVariable Long id, @ModelAttribute @Valid TicketType ticketType, BindingResult result, Model model, @RequestParam String oldName) {
         if (ticketType.getName().equals(oldName)) {
-            ticketTypeRepository.save(ticketType);
+            ticketTypeService.saveTicketType(ticketType);
             return "redirect:../showAll";
         } else if (result.hasErrors()) {
-            model.addAttribute("ticketType", ticketTypeRepository.findAllById(ticketType.getId()));
+            model.addAttribute("ticketType", ticketTypeService.findTicketTypeById(ticketType.getId()));
             return "ticketType/addTicketType";
         }
 
-        List<TicketType> ticketTypes = ticketTypeRepository.findAll();
+        List<TicketType> ticketTypes = ticketTypeService.findAllTicketTypes();
         boolean check = ticketTypes.stream().map(o -> o.getName().toLowerCase()).anyMatch(o -> o.equals(ticketType.getName().toLowerCase()));
         if (check) {
             model.addAttribute("ticketTypeFail", true);
-            model.addAttribute("ticketType", ticketTypeRepository.findAllById(ticketType.getId()));
+            model.addAttribute("ticketType", ticketTypeService.findTicketTypeById(ticketType.getId()));
             return "ticketType/addTicketType";
         }
 
-
-        ticketTypeRepository.save(ticketType);
+        ticketTypeService.saveTicketType(ticketType);
         return "redirect:../showAll";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id, Model model) {
-        TicketType ticketType = ticketTypeRepository.findAllById(id);
+        TicketType ticketType = ticketTypeService.findTicketTypeById(id);
         List<ServiceTicket> serviceTickets = serviceTicketService.findAllServiceTicketsByTicketType(ticketType);
 
         if (serviceTickets.size() > 0) {
             model.addAttribute("failedTicketType", true);
-            model.addAttribute("ticketTypes", ticketTypeRepository.findAll());
+            model.addAttribute("ticketTypes", ticketTypeService.findAllTicketTypes());
             return "ticketType/showAllTicketTypes";
         }
-        ticketTypeRepository.delete(ticketType);
+        ticketTypeService.deleteTicketType(ticketType);
         return "redirect:../showAll";
     }
 
