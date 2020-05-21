@@ -32,7 +32,7 @@ import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatus;
 import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatusServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.ticketType.TicketType;
-import pl.maciejowczarczyk.servicemanagement.ticketType.TicketTypeRepository;
+import pl.maciejowczarczyk.servicemanagement.ticketType.TicketTypeServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.user.User;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
@@ -57,7 +57,7 @@ public class ServiceTicketController {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final ServiceTicketServiceImpl serviceTicketService;
     private final CompanyServiceImpl companyService;
-    private final TicketTypeRepository ticketTypeRepository;
+    private final TicketTypeServiceImpl ticketTypeService;
     private final MachineServiceImpl machineService;
     private final UserRepository userRepository;
     private final TicketStatusServiceImpl ticketStatusService;
@@ -368,7 +368,7 @@ public class ServiceTicketController {
 
     @ModelAttribute("ticketTypes")
     public List<TicketType> fetchAllTicketTypes() {
-        return ticketTypeRepository.findAll();
+        return ticketTypeService.findAllTicketTypes();
     }
 
     @ModelAttribute("ticketStatuses")

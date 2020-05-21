@@ -14,8 +14,6 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import pl.maciejowczarczyk.servicemanagement.role.RoleConverter;
 import pl.maciejowczarczyk.servicemanagement.user.UserConverter;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
-import pl.maciejowczarczyk.servicemanagement.user.UserService;
 
 
 @Configuration

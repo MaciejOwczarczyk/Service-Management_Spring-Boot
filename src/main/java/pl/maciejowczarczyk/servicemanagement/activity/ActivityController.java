@@ -11,6 +11,7 @@ import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
+import pl.maciejowczarczyk.servicemanagement.user.UserServiceImpl;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -24,7 +25,7 @@ public class ActivityController {
     private final ServiceTicketServiceImpl serviceTicketService;
     private final ActivityServiceImpl activityService;
     private final PlannerServiceImpl plannerService;
-    private final UserRepository userRepository;
+    private final UserServiceImpl userService;
 
     @GetMapping("/add/{plannerId}")
     public String add(@PathVariable Long plannerId, Model model) {
@@ -83,7 +84,7 @@ public class ActivityController {
                 model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else {
-                activity.setUser(userRepository.findByUsername(customUser.getUsername()));
+                activity.setUser(userService.findByUserName(customUser.getUsername()));
                 activity.setServiceTicket(serviceTicket);
                 activity.setPlanner(planner);
                 activityService.saveActivity(activity);
@@ -165,7 +166,7 @@ public class ActivityController {
             } else {
                 activity.setPlanner(planner);
                 activity.setServiceTicket(activityService.findById(activity.getId()).getServiceTicket());
-                activity.setUser(userRepository.findByUsername(customUser.getUsername()));
+                activity.setUser(userService.findByUserName(customUser.getUsername()));
                 activityService.saveActivity(activity);
                 return "redirect:../../serviceTicket/details/" + activity.getServiceTicket().getId();
             }
