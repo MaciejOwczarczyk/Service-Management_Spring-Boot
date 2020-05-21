@@ -12,12 +12,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserRestController {
 
-    private final UserRepository userRepository;
+    private final UserServiceImpl userService;
     private final RoleServiceImpl roleService;
 
     @GetMapping("/techniciansList/get")
     public List<DTOUser> users() {
-        List<User> users = userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
+        List<User> users = userService.findAllUsersByRole(roleService.findRoleByName("ROLE_ENGINEER"));
         List<DTOUser> DtoUsers = new ArrayList<>();
 
         for (User user : users) {

@@ -9,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,7 +33,7 @@ import pl.maciejowczarczyk.servicemanagement.ticketStatus.TicketStatusServiceImp
 import pl.maciejowczarczyk.servicemanagement.ticketType.TicketType;
 import pl.maciejowczarczyk.servicemanagement.ticketType.TicketTypeServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.user.User;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
+import pl.maciejowczarczyk.servicemanagement.user.UserServiceImpl;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -59,12 +58,11 @@ public class ServiceTicketController {
     private final CompanyServiceImpl companyService;
     private final TicketTypeServiceImpl ticketTypeService;
     private final MachineServiceImpl machineService;
-    private final UserRepository userRepository;
+    private final UserServiceImpl userService;
     private final TicketStatusServiceImpl ticketStatusService;
     private final DBFileStorageService dbFileStorageService;
     private final PlannerServiceImpl plannerService;
     private final ActivityServiceImpl activityService;
-    private final UserDetailsService userDetailsService;
 
     @GetMapping("/addStep1")
     public String add(Model model, HttpSession session) {
@@ -91,7 +89,7 @@ public class ServiceTicketController {
             return "serviceTicket/addTicketStep1";
         }
 
-        List<User> users = Collections.singletonList(userRepository.findByUsername(customUser.getUsername()));
+        List<User> users = Collections.singletonList(userService.findUserByUsername(customUser.getUsername()));
         serviceTicket.setUsers(users);
         serviceTicket.setTicketStatus(ticketStatusService.findTicketStatusByName("Open"));
         model.addAttribute("machines", findMachines(serviceTicket));
@@ -221,20 +219,20 @@ public class ServiceTicketController {
 
 
     @GetMapping("/details/{id}")
-    public String serviceTicketDetails(@AuthenticationPrincipal UserDetails customerUser, @PathVariable Long id, Model model, HttpSession session) {
+    public String serviceTicketDetails(@AuthenticationPrincipal UserDetails customUser, @PathVariable Long id, Model model, HttpSession session) {
         ServiceTicket serviceTicket = serviceTicketService.findServiceTicketById(id);
         List<Activity> activities;
         Set<Planner> planners = plannerService.findPlannersByServiceTicket(serviceTicket)
                 .stream()
-                .filter(o -> o.getUser().getUsername().equals(customerUser.getUsername()))
+                .filter(o -> o.getUser().getUsername().equals(customUser.getUsername()))
                 .collect(Collectors.toSet());
 
 
-        boolean check = customerUser.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
+        boolean check = customUser.getAuthorities().stream().anyMatch(o -> o.getAuthority().equals("ROLE_ADMIN") || o.getAuthority().equals("ROLE_USER"));
         if (check) {
             activities = activityService.findAllByServiceTicket(serviceTicket);
         } else {
-            activities = activityService.findAllByServiceTicketAndUser(serviceTicket, userRepository.findByUsername(customerUser.getUsername()));
+            activities = activityService.findAllByServiceTicketAndUser(serviceTicket, userService.findUserByUsername(customUser.getUsername()));
         }
 
         List<Activity> sortedActivities = activities.stream().sorted(Comparator.comparing(Activity::getId)).collect(Collectors.toList());
@@ -289,7 +287,7 @@ public class ServiceTicketController {
         if (check) {
             model.addAttribute("files", dbFileStorageService.loadAllByServiceTicket(serviceTicket));
         } else {
-            User user = userRepository.findByUsername(customerUser.getUsername());
+            User user = userService.findUserByUsername(customUser.getUsername());
             List<DBFile> files = dbFileStorageService.loadAllByUser(user);
             model.addAttribute("files", files);
         }
@@ -309,7 +307,7 @@ public class ServiceTicketController {
     @PostMapping("/details/{id}")
     public String serviceTicketDetailsFileUpload(@AuthenticationPrincipal UserDetails customUser, @PathVariable Long id, @RequestParam("file") MultipartFile file) {
         ServiceTicket serviceTicket = serviceTicketService.findServiceTicketById(id);
-        User user = userRepository.findByUsername(customUser.getUsername());
+        User user = userService.findUserByUsername(customUser.getUsername());
         dbFileStorageService.storeFile(user, file, serviceTicket);
         return "redirect:../details/" + id;
     }

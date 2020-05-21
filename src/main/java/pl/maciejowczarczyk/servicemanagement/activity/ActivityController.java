@@ -10,7 +10,6 @@ import pl.maciejowczarczyk.servicemanagement.planner.Planner;
 import pl.maciejowczarczyk.servicemanagement.planner.PlannerServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 import pl.maciejowczarczyk.servicemanagement.user.UserServiceImpl;
 
 import java.time.LocalDate;
@@ -84,7 +83,7 @@ public class ActivityController {
                 model.addAttribute("planner", plannerService.findPlannerById(plannerId));
                 return "activity/addActivity";
             } else {
-                activity.setUser(userService.findByUserName(customUser.getUsername()));
+                activity.setUser(userService.findUserByUsername(customUser.getUsername()));
                 activity.setServiceTicket(serviceTicket);
                 activity.setPlanner(planner);
                 activityService.saveActivity(activity);
@@ -166,7 +165,7 @@ public class ActivityController {
             } else {
                 activity.setPlanner(planner);
                 activity.setServiceTicket(activityService.findById(activity.getId()).getServiceTicket());
-                activity.setUser(userService.findByUserName(customUser.getUsername()));
+                activity.setUser(userService.findUserByUsername(customUser.getUsername()));
                 activityService.saveActivity(activity);
                 return "redirect:../../serviceTicket/details/" + activity.getServiceTicket().getId();
             }

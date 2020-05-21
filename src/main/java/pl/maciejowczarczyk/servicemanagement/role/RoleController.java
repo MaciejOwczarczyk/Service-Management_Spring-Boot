@@ -8,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.user.User;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.Set;
 public class RoleController {
 
     private final RoleServiceImpl roleService;
-    private final UserRepository userRepository;
 
     @GetMapping("/showAll")
     public String showAll(Model model) {

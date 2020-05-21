@@ -1,13 +1,11 @@
 package pl.maciejowczarczyk.servicemanagement.user;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 import pl.maciejowczarczyk.servicemanagement.role.RoleServiceImpl;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -22,7 +20,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User findByUserName(String name) {
+    public User findUserByUsername(String name) {
         return userRepository.findByUsername(name);
     }
 
@@ -47,12 +45,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> findAll() {
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
     public boolean containsUser(User user) {
-        return findAll().contains(user);
+        return findAllUsers().contains(user);
+    }
+
+    @Override
+    public List<User> findAllUsersByRole(Role role) {
+        return userRepository.findAllByRoles(role);
+    }
+
+    @Override
+    public User findUserById(Long id) {
+        return userRepository.findAllById(id);
     }
 }

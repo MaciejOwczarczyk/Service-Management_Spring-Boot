@@ -2,7 +2,7 @@ package pl.maciejowczarczyk.servicemanagement.planner;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
+import pl.maciejowczarczyk.servicemanagement.user.UserServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 public class PlannerRestController {
 
     private final PlannerServiceImpl plannerService;
-    private final UserRepository userRepository;
+    private final UserServiceImpl userService;
 
     @GetMapping("/serviceTicketWarranty/get")
     public List<PlannerDTO> getWarrantyTickets() {
@@ -87,8 +87,7 @@ public class PlannerRestController {
         Planner planner = plannerService.findPlannerById(id);
         planner.setStart(plannerDTO.getStart());
         planner.setEnd(plannerDTO.getEnd());
-//        planner.setTechnician(technicianRepository.findAllById(plannerDTO.getResourceId()));
-        planner.setUser(userRepository.findAllById(plannerDTO.getResourceId()));
+        planner.setUser(userService.findUserById(plannerDTO.getResourceId()));
         return plannerService.savePlanner(planner);
     }
 

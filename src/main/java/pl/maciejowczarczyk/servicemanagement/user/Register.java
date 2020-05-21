@@ -1,35 +1,25 @@
 package pl.maciejowczarczyk.servicemanagement.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.authority.Authority;
-import pl.maciejowczarczyk.servicemanagement.authority.AuthorityService;
 import pl.maciejowczarczyk.servicemanagement.authority.AuthorityServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.confirmationToken.ConfirmationToken;
 import pl.maciejowczarczyk.servicemanagement.confirmationToken.ConfirmationTokenServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.http.HttpRequest;
 import java.util.*;
-import java.util.function.Predicate;
 
 @Controller
 @RequiredArgsConstructor
 public class Register {
 
-    private final UserRepository userRepository;
     private final AuthorityServiceImpl authorityService;
     private final UserServiceImpl userService;
     private final ConfirmationTokenServiceImpl confirmationTokenService;
@@ -40,13 +30,9 @@ public class Register {
         return "login/resetPassword";
     }
 
-    private List<User> findAllUsers() {
-        return userService.findAll();
-    }
-
     @PostMapping("/resetPassword")
     public String resetPassword(Model model, @RequestParam String username) {
-        User user = userService.findByUserName(username);
+        User user = userService.findUserByUsername(username);
 
         if (!userService.containsUser(user)) {
             model.addAttribute("noUser", true);
@@ -87,7 +73,7 @@ public class Register {
             model.addAttribute("passwordFail", true);
             return "login/resetPasswordProcess";
         } else {
-            User user = userService.findByUserName(confirmationToken.getUser().getUsername().toLowerCase());
+            User user = userService.findUserByUsername(confirmationToken.getUser().getUsername().toLowerCase());
             user.setPassword(password);
             userService.saveUser(user);
 
@@ -115,7 +101,7 @@ public class Register {
             return "login/registration";
         }
 
-        List<User> userList = userRepository.findAll();
+        List<User> userList = userService.findAllUsers();
         boolean checkUserPresence = userList.stream().map(o -> o.getUsername().toLowerCase()).anyMatch(o -> o.equals(user.getUsername().toLowerCase()));
 
         if (checkUserPresence) {
@@ -159,7 +145,7 @@ public class Register {
         if (confirmationToken == null || (confirmationToken.getExpirationDate().getTime() - calendar.getTime().getTime()) <= 0) {
             return "login/invalidRegistration";
         } else {
-            User user = userRepository.findAllById(confirmationToken.getUser().getId());
+            User user = userService.findUserById(confirmationToken.getUser().getId());
             userService.activateUser(user);
             return "login/successRegistration";
         }
