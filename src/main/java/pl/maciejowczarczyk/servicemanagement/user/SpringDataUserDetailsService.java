@@ -1,7 +1,6 @@
 package pl.maciejowczarczyk.servicemanagement.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +18,7 @@ public class SpringDataUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = userService.findByUserName(username);
+        User user = userService.findUserByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException(username);
         }

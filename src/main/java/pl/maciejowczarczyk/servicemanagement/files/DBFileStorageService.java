@@ -6,21 +6,16 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicket;
 import pl.maciejowczarczyk.servicemanagement.user.User;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
 
 import java.io.IOException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class DBFileStorageService {
 
     private final DBFileRepository dbFileRepository;
-    private final UserRepository userRepository;
 
-    public DBFileStorageService(DBFileRepository dbFileRepository, UserRepository userRepository) {
-        this.dbFileRepository = dbFileRepository;
-        this.userRepository = userRepository;
-    }
 
     public void storeFile(User user, MultipartFile file, ServiceTicket serviceTicket) {
         // Normalize file name

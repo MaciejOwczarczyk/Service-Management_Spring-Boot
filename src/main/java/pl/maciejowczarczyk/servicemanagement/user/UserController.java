@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.authority.Authority;
 import pl.maciejowczarczyk.servicemanagement.authority.AuthorityServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
-import pl.maciejowczarczyk.servicemanagement.role.RoleService;
 import pl.maciejowczarczyk.servicemanagement.role.RoleServiceImpl;
 
 import javax.validation.Valid;
@@ -21,20 +20,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository userRepository;
     private final AuthorityServiceImpl authorityService;
     private final RoleServiceImpl roleService;
     private final UserServiceImpl userService;
 
     @GetMapping("/showAll")
     public String showAll(Model model) {
-        model.addAttribute("users", userRepository.findAll());
+        model.addAttribute("users", userService.findAllUsers());
         return "user/showAllUsers";
     }
 
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
-        model.addAttribute("user", userRepository.findAllById(id));
+        model.addAttribute("user", userService.findUserById(id));
         return "user/editUser";
     }
 
@@ -44,7 +42,7 @@ public class UserController {
             model.addAttribute("user", user);
             return "user/editUser";
         }
-        userRepository.save(user);
+        userService.saveUser(user);
         List<Authority> authorities = authorityService.findAllAuthorities();
 
         authorities.stream().filter(o -> o.getUser().getId().equals(user.getId())).forEach(authorityService::deleteAuthority);
@@ -71,7 +69,7 @@ public class UserController {
         if (result.hasErrors()) {
             return "user/addUser";
         }
-        List<User> users = userRepository.findAll();
+        List<User> users = userService.findAllUsers();
         boolean check = users.stream().map(User::getUsername).anyMatch(o -> o.equals(user.getUsername()));
         if (check) {
             model.addAttribute("registerFail", true);

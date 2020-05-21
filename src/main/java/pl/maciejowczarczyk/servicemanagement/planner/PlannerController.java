@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.maciejowczarczyk.servicemanagement.role.RoleServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.serviceTicket.ServiceTicketServiceImpl;
 import pl.maciejowczarczyk.servicemanagement.user.User;
-import pl.maciejowczarczyk.servicemanagement.user.UserRepository;
+import pl.maciejowczarczyk.servicemanagement.user.UserServiceImpl;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -25,7 +25,7 @@ public class PlannerController {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final PlannerServiceImpl plannerService;
     private final ServiceTicketServiceImpl serviceTicketService;
-    private final UserRepository userRepository;
+    private final UserServiceImpl userService;
     private final RoleServiceImpl roleService;
 
     @GetMapping("/add/{id}")
@@ -34,7 +34,7 @@ public class PlannerController {
 //        List<Technician> technicians = technicianRepository.findAll();
         List<Planner> planners = new ArrayList<>();
 
-        List<User> users = userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
+        List<User> users = userService.findAllUsersByRole(roleService.findRoleByName("ROLE_ENGINEER"));
 
         for (User user : users) {
             planners.add(new Planner());
@@ -64,7 +64,7 @@ public class PlannerController {
 //                    List<Technician> technicians = technicianRepository.findAll();
                     List<Planner> plannerArrayList = new ArrayList<>();
 
-                    List<User> users = userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
+                    List<User> users = userService.findAllUsersByRole(roleService.findRoleByName("ROLE_ENGINEER"));
 
                     for (User user : users) {
                         plannerArrayList.add(new Planner());
@@ -104,7 +104,7 @@ public class PlannerController {
 
     @ModelAttribute("technicians")
     public List<User> fetchAllUsers() {
-        return userRepository.findAllByRoles(roleService.findRoleByName("ROLE_ENGINEER"));
+        return userService.findAllUsersByRole(roleService.findRoleByName("ROLE_ENGINEER"));
     }
 
     @ModelAttribute("userDetails")
