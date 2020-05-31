@@ -2,12 +2,17 @@ package pl.maciejowczarczyk.servicemanagement.user;
 
 import lombok.Data;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.maciejowczarczyk.servicemanagement.role.Role;
 
@@ -22,26 +27,54 @@ import static org.junit.Assert.*;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserRepositoryTest {
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @TestConfiguration
+    static class UserServiceImplIntegrationTest {
 
+        @Bean
+        public UserService userService() {
+            return new UserServiceImpl();
+        }
+
+    }
 
     @Autowired
-    UserRepository userRepository;
+    private UserService userService;
+
+    @MockBean
+    private UserRepository userRepository;
+
+//    @Autowired
+//    private TestEntityManager entityManager;
+//
+//
+//    @Autowired
+//    UserRepository userRepository;
+
+    @Before
+    public void setUp() {
+       User maciej = new User();
+       maciej.setFirstName("Maciej");
+       Mockito.when(userRepository.findByUsername(maciej.getFirstName())).thenReturn(maciej);
+    }
 
     @Test
     public void findByUsername() {
-        User user = new User();
-        user.setEnabled(true);
-        user.setFirstName("maciej");
-        user.setLastName("maciej");
-        user.setUsername("maciek122@vp.pl");
-        user.setPassword("sasa");
-        entityManager.persist(user);
-        entityManager.flush();
+//        User user = new User();
+//        user.setEnabled(true);
+//        user.setFirstName("maciej");
+//        user.setLastName("maciej");
+//        user.setUsername("maciek122@vp.pl");
+//        user.setPassword("sasa");
+//        entityManager.persist(user);
+//        entityManager.flush();
+//
+//        User found = userRepository.findByUsername(user.getUsername());
+//        assertThat(user.getUsername()).isEqualTo(found.getUsername());
 
-        User found = userRepository.findByUsername(user.getUsername());
-        assertThat(user.getUsername()).isEqualTo(found.getUsername());
+        String name = "Maciej";
+        User found = userRepository.findByUsername(name);
+        assertThat(found.getFirstName()).isEqualTo(name);
+
 
     }
 

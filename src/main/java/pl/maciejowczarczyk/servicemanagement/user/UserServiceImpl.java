@@ -11,13 +11,20 @@ import java.util.HashSet;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final RoleServiceImpl roleService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private UserRepository userRepository;
+    private RoleServiceImpl roleService;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    public UserServiceImpl() {
+    }
+
+    public UserServiceImpl(UserRepository userRepository, RoleServiceImpl roleService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.userRepository = userRepository;
+        this.roleService = roleService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
 
     @Override
     public User findUserByUsername(String name) {
