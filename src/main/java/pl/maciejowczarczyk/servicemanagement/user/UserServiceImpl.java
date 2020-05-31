@@ -1,5 +1,6 @@
 package pl.maciejowczarczyk.servicemanagement.user;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,12 +14,9 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-    private RoleServiceImpl roleService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    public UserServiceImpl() {
-    }
+    private final UserRepository userRepository;
+    private final RoleServiceImpl roleService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserServiceImpl(UserRepository userRepository, RoleServiceImpl roleService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
@@ -32,14 +30,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveUser(User user) {
+    public void saveNewUser(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        user.setEnabled(true);
-
-        if (user.getRoles().size() == 0) {
-            Role userRole = roleService.findRoleByName("ROLE_ADMIN");
-            user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
-        }
+        user.setEnabled(false);
+        Role userRole = roleService.findRoleByName("ROLE_ADMIN");
+        user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
         userRepository.save(user);
     }
 
@@ -69,5 +64,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findUserById(Long id) {
         return userRepository.findAllById(id);
+    }
+
+    @Override
+    public void saveUser(User user) {
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
     }
 }

@@ -75,7 +75,7 @@ public class Register {
         } else {
             User user = userService.findUserByUsername(confirmationToken.getUser().getUsername().toLowerCase());
             user.setPassword(password);
-            userService.saveUser(user);
+            userService.saveNewUser(user);
 
             for (Role role : user.getRoles()) {
                 Authority authority = new Authority();
@@ -102,7 +102,10 @@ public class Register {
         }
 
         List<User> userList = userService.findAllUsers();
-        boolean checkUserPresence = userList.stream().map(o -> o.getUsername().toLowerCase()).anyMatch(o -> o.equals(user.getUsername().toLowerCase()));
+
+        boolean checkUserPresence = userList.stream()
+                .map(o -> o.getUsername().toLowerCase())
+                .anyMatch(o -> o.equals(user.getUsername().toLowerCase()));
 
         if (checkUserPresence) {
             model.addAttribute("registerFail", true);
@@ -113,7 +116,7 @@ public class Register {
             model.addAttribute("passwordFail", true);
             return "login/registration";
         }
-            userService.saveUser(user);
+            userService.saveNewUser(user);
 
             for (Role role : user.getRoles()) {
                 Authority authority = new Authority();

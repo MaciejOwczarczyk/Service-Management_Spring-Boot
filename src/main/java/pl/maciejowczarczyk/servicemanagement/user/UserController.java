@@ -44,7 +44,6 @@ public class UserController {
         }
         userService.saveUser(user);
         List<Authority> authorities = authorityService.findAllAuthorities();
-
         authorities.stream().filter(o -> o.getUser().getId().equals(user.getId())).forEach(authorityService::deleteAuthority);
 
         for (Role role : user.getRoles()) {
@@ -81,6 +80,7 @@ public class UserController {
         for (Role role : user.getRoles()) {
             Authority authority = new Authority();
             authority.setUser(user);
+            authority.setRole(role);
             authorityService.saveAuthority(authority);
         }
         return "redirect:showAll";
